@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:orderInCategory="1"
+        android:title="@string/release_date"
+        app:showAsAction="ifRoom" />
+
+    <group
+        android:id="@+id/sort_by"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/sort_by_popularity"
+            android:checked="true"
+            android:title="@string/most_popular" />
+        <item
+            android:id="@+id/sort_by_top_rated"
+            android:title="@string/highest_rated" />
+    </group>
+</menu>

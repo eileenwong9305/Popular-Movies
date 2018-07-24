@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="user_rating">User rating</string>
+    <string name="user_rating_value">%1$s / 10</string>
+    <string name="release_date">Release date</string>
+    <string name="error_message">No network connection</string>
+    <string name="highest_rated">Highest rated</string>
+    <string name="most_popular">Most popular</string>
+    <string name="desc_backdrop">Backdrop of the movie</string>
+    <string name="desc_poster">Movie poster</string>
+</resources>

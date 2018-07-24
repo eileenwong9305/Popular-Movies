@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">8dp</dimen>
+    <dimen name="activity_vertical_margin">8dp</dimen>
+    <dimen name="title_top_margin">4dp</dimen>
+    <dimen name="label_horizontal_margin">8dp</dimen>
+    <dimen name="label_vertical_margin">8dp</dimen>
+    <dimen name="content_horizontal_margin">16dp</dimen>
+    <dimen name="content_vertical_margin">8dp</dimen>
+    <dimen name="activity_padding_vertical">16dp</dimen>
+    <dimen name="main_poster_height">300dp</dimen>
+    <dimen name="backdrop_height">250dp</dimen>
+    <dimen name="poster_width">150dp</dimen>
+    <dimen name="poster_height">220dp</dimen>
+    <dimen name="barrier_margin">270dp</dimen>
+</resources>
