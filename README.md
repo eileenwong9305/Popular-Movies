@@ -17,7 +17,7 @@
 - Minimum Android Version: 15
 
 ## Getting Started
-To run the app, please login to [TheMovieDB website](https://developers.themoviedb.org/3/getting-started/introduction) and request an API key. Replace the text "[YOUR_API_KEY]" with your API key in "NetworkUtils" file. Then build and run the file in your mobile device or emulator.
+To run the app, please login to [TheMovieDB website](https://developers.themoviedb.org/3/getting-started/introduction) and request an API key. Replace the text "[YOUR_API_KEY]" with your API key in "gradle.properties" file. Then build and run the file in your mobile device or emulator.
 
 ## Project Screenshot
 Home screen. Movies list are sorted either by most popular or highest-rated.

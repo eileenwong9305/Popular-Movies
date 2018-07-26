@@ -2,6 +2,8 @@ package com.example.android.popularmovies.Utils;
 
 import android.net.Uri;
 
+import com.example.android.popularmovies.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +40,7 @@ public class NetworkUtils {
     /*
         TODO: Replace [YOUR_API_KEY] with your API key requested from TheMovieDB website
      */
-    private static final String API_KEY = "[YOUR_API_KEY]";
+    private static final String API_KEY = BuildConfig.API_KEY;
 
     /**
      * Build url to communicate with themoviedb.org server using user-selected sort type.
