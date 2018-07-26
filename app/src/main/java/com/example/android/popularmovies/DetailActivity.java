@@ -12,6 +12,9 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Utils.Movie;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class DetailActivity extends AppCompatActivity {
 
     private static final String KEY_PARCEL = "selected_movie";
@@ -19,6 +22,13 @@ public class DetailActivity extends AppCompatActivity {
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
 
     private Movie movie;
+
+    @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
+    @BindView(R.id.iv_detail_poster) ImageView posterImageView;
+    @BindView(R.id.tv_detail_title) TextView titleTextView;
+    @BindView(R.id.tv_detail_overview) TextView overviewTextView;
+    @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
+    @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +47,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
 
-        ImageView backdropImageView = findViewById(R.id.iv_detail_backdrop);
-        ImageView posterImageView = findViewById(R.id.iv_detail_poster);
-        TextView titleTextView = findViewById(R.id.tv_detail_title);
-        TextView overviewTextView = findViewById(R.id.tv_detail_overview);
-        TextView userRatingTextView = findViewById(R.id.tv_detail_user_rating);
-        TextView releaseDateTextView = findViewById(R.id.tv_detail_release_date);
+        ButterKnife.bind(this);
 
         String backdropUrl = BACKDROP_BASE_PATH + movie.getBackdrop();
         Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);

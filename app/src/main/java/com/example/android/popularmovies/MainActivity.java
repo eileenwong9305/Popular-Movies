@@ -19,6 +19,9 @@ import com.example.android.popularmovies.Utils.NetworkUtils;
 import java.net.URL;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -27,9 +30,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private static final String KEY_PARCEL_INTENT = "selected_movie";
     private static final String KEY_PARCEL_MOVIE_LIST = "movies_list";
 
-    private ProgressBar loadingIndicator;
-    private TextView errorMessageTextView;
-    private RecyclerView recyclerView;
+    @BindView(R.id.pb_loading_indicator) ProgressBar loadingIndicator;
+    @BindView(R.id.tv_error_message) TextView errorMessageTextView;
+    @BindView(R.id.rv_movie) RecyclerView recyclerView;
+
     private MoviesAdapter adapter;
     private ArrayList<Movie> movieList;
     private String sortByPath;
@@ -40,10 +44,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadingIndicator = findViewById(R.id.pb_loading_indicator);
-        errorMessageTextView = findViewById(R.id.tv_error_message);
+        ButterKnife.bind(this);
 
-        recyclerView = findViewById(R.id.rv_movie);
         GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
