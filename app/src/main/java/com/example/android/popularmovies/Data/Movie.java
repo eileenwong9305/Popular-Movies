@@ -1,4 +1,4 @@
-package com.example.android.popularmovies.Utils;
+package com.example.android.popularmovies.Data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -33,6 +33,7 @@ public class Movie implements Parcelable {
 
     private ArrayList<String> genres;
     private String runtime;
+    private ArrayList<Review> reviews;
 
     public Movie(String title, String poster, String overview, String userRating,
                  String releaseDate, String backdrop, int movieId) {
@@ -45,9 +46,10 @@ public class Movie implements Parcelable {
         this.movieId = movieId;
     }
 
-    public Movie(ArrayList<String> genres, String runtime) {
+    public Movie(ArrayList<String> genres, String runtime, ArrayList<Review> reviews) {
         this.genres = genres;
         this.runtime = runtime;
+        this.reviews = reviews;
     }
 
     public Movie(Parcel source) {
@@ -122,6 +124,10 @@ public class Movie implements Parcelable {
 
     public String getRuntime() {
         return runtime;
+    }
+
+    public ArrayList<Review> getReviews() {
+        return reviews;
     }
 
     @Override

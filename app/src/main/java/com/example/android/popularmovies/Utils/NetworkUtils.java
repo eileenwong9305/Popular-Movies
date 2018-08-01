@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.android.popularmovies.BuildConfig;
+import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.Review;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +43,10 @@ public class NetworkUtils {
     private static final String KEY_CASTS = "cast";
     private static final String KEY_CHARACTER = "character";
     private static final String KEY_PROFILE_PATH = "profile_path";
+
+    private static final String KEY_REVIEWS = "reviews";
+    private static final String KEY_REVIEW_AUTHOR = "author";
+    private static final String KEY_REVIEW_CONTENT = "content";
 
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie";
@@ -142,7 +148,17 @@ public class NetworkUtils {
 //            String actor = cast.getString(KEY_NAME);
 //            String profilePath = cast.getString(KEY_PROFILE_PATH);
 //        }
-        return new Movie(genres, runtime);
+
+        JSONObject reviewsList = root.getJSONObject(KEY_REVIEWS);
+        JSONArray reviewResults = reviewsList.getJSONArray(KEY_RESULTS);
+        ArrayList<Review> reviews = new ArrayList<>();
+        for (int i = 0; i < reviewResults.length(); i++) {
+            JSONObject review = reviewResults.getJSONObject(i);
+            String author = review.getString(KEY_REVIEW_AUTHOR);
+            String content = review.getString(KEY_REVIEW_CONTENT);
+            reviews.add(new Review(author, content));
+        }
+        return new Movie(genres, runtime, reviews);
     }
 
     /**

@@ -6,14 +6,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Utils.Movie;
+import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Utils.MoviesAdapter;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 

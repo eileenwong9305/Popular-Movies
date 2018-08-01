@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
