@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -28,15 +29,25 @@ public class Movie implements Parcelable {
     private String userRating;
     private String releaseDate;
     private String backdrop;
+    private int movieId;
+
+    private ArrayList<String> genres;
+    private String runtime;
 
     public Movie(String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop) {
+                 String releaseDate, String backdrop, int movieId) {
         this.title = title;
         this.poster = poster;
         this.overview = overview;
         this.userRating = userRating;
         this.releaseDate = releaseDate;
         this.backdrop = backdrop;
+        this.movieId = movieId;
+    }
+
+    public Movie(ArrayList<String> genres, String runtime) {
+        this.genres = genres;
+        this.runtime = runtime;
     }
 
     public Movie(Parcel source) {
@@ -46,6 +57,7 @@ public class Movie implements Parcelable {
         this.userRating = source.readString();
         this.releaseDate = source.readString();
         this.backdrop = source.readString();
+        this.movieId = source.readInt();
     }
 
     public String getOverview() {
@@ -96,6 +108,22 @@ public class Movie implements Parcelable {
         this.backdrop = backdrop;
     }
 
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
+    }
+
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public ArrayList<String> getGenres() {
+        return genres;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -109,6 +137,7 @@ public class Movie implements Parcelable {
         dest.writeString(userRating);
         dest.writeString(releaseDate);
         dest.writeString(backdrop);
+        dest.writeInt(movieId);
     }
 
     /**

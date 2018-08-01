@@ -29,14 +29,13 @@
             android:layout_height="@dimen/poster_height"
             android:layout_marginLeft="@dimen/content_horizontal_margin"
             android:layout_marginStart="@dimen/content_horizontal_margin"
-            android:layout_marginTop="@dimen/content_vertical_margin"
             android:adjustViewBounds="true"
             android:background="@drawable/border"
             android:contentDescription="@string/desc_poster"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_detail_title"
+            app:layout_constraintBottom_toTopOf="@+id/tv_detail_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_detail_backdrop" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_detail_title" />
 
         <TextView
             android:id="@+id/tv_detail_title"
@@ -62,14 +61,15 @@
             android:layout_marginLeft="@dimen/content_horizontal_margin"
             android:layout_marginRight="@dimen/content_horizontal_margin"
             android:layout_marginStart="@dimen/content_horizontal_margin"
-            android:layout_marginTop="@dimen/content_horizontal_margin"
+            android:layout_marginTop="8dp"
             android:text="@string/synopsis"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster" />
+            app:layout_constraintTop_toBottomOf="@+id/runtime_label" />
 
         <TextView
             android:id="@+id/tv_detail_overview"
@@ -89,12 +89,28 @@
             app:layout_constraintTop_toBottomOf="@+id/overview_label" />
 
         <TextView
-            android:id="@+id/tv_detail_user_rating"
+            android:id="@+id/release_date_label"
+            style="@style/DetailInfoStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/release_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/genre_label" />
+
+        <TextView
+            android:id="@+id/tv_detail_release_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:textSize="16sp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/user_rating_label"
-            app:layout_constraintStart_toStartOf="@+id/tv_detail_release_date" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/release_date_label"
+            app:layout_constraintStart_toEndOf="@+id/barrier3"
+            tools:text="12 Jan 2014" />
+
 
         <TextView
             android:id="@+id/user_rating_label"
@@ -109,30 +125,61 @@
             app:layout_constraintStart_toEndOf="@+id/iv_detail_poster" />
 
         <TextView
-            android:id="@+id/release_date_label"
+            android:id="@+id/tv_detail_user_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/user_rating_label"
+            app:layout_constraintStart_toEndOf="@+id/user_rating_label"
+            tools:text="9.6/10" />
+
+        <TextView
+            android:id="@+id/genre_label"
             style="@style/DetailInfoStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/label_horizontal_margin"
-            android:layout_marginLeft="@dimen/label_horizontal_margin"
-            android:layout_marginStart="@dimen/label_horizontal_margin"
-            android:text="@string/release_date"
-            app:layout_constraintBottom_toTopOf="@+id/user_rating_label"
-            app:layout_constraintStart_toEndOf="@+id/iv_detail_poster" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/genres"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster" />
 
         <TextView
-            android:id="@+id/tv_detail_release_date"
-            android:layout_width="0dp"
+            android:id="@+id/tv_detail_genre"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/content_horizontal_margin"
-            android:layout_marginLeft="@dimen/content_horizontal_margin"
-            android:layout_marginRight="@dimen/content_horizontal_margin"
-            android:layout_marginStart="@dimen/content_horizontal_margin"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:textSize="16sp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/release_date_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/barrier3" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/genre_label"
+            app:layout_constraintStart_toEndOf="@+id/barrier3"
+            tools:text="Comedy, Horror" />
 
+        <TextView
+            android:id="@+id/runtime_label"
+            style="@style/DetailInfoStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/runtime"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.049"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/release_date_label" />
+
+        <TextView
+            android:id="@+id/tv_detail_runtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/runtime_label"
+            app:layout_constraintStart_toEndOf="@+id/barrier3"
+            tools:text="144 min" />
 
         <android.support.constraint.Barrier
             android:id="@+id/barrier3"
@@ -141,7 +188,7 @@
             android:layout_marginLeft="@dimen/barrier_margin"
             android:layout_marginStart="@dimen/barrier_margin"
             app:barrierDirection="right"
-            app:constraint_referenced_ids="user_rating_label,release_date_label"
+            app:constraint_referenced_ids="runtime_label,release_date_label, genre_label"
             app:layout_constraintStart_toStartOf="parent" />
 
     </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.Utils;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.android.popularmovies.BuildConfig;
 
@@ -32,10 +33,22 @@ public class NetworkUtils {
     private static final String KEY_USER_RATING = "vote_average";
     private static final String KEY_RELEASE_DATE = "release_date";
     private static final String KEY_BACKDROP = "backdrop_path";
+    private static final String KEY_MOVIE_ID = "id";
+    private static final String KEY_GENRES = "genres";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_RUNTIME = "runtime";
+    private static final String KEY_CREDITS = "credits";
+    private static final String KEY_CASTS = "cast";
+    private static final String KEY_CHARACTER = "character";
+    private static final String KEY_PROFILE_PATH = "profile_path";
+
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie";
     private static final String API_KEY_PARAM = "api_key";
+    private static final String RESPOND_PARAM = "append_to_response";
     private static final String DEFAULT_SORT_BY_PATH = "popular";
+    private static final String RESPOND_VALUE = "videos";
+    private static final String RESPOND_ADD_VALUE = ",images,credits,reviews";
 
     /*
         TODO: Replace [YOUR_API_KEY] with your API key requested from TheMovieDB website
@@ -56,6 +69,21 @@ public class NetworkUtils {
         URL url = null;
         try {
             url = new URL(buildUri.toString());
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return url;
+    }
+
+    public static URL buildUrl(int movieId) {
+        Uri buildUri = Uri.parse(BASE_URL).buildUpon()
+                .appendPath(String.valueOf(movieId))
+                .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                .appendQueryParameter(RESPOND_PARAM, RESPOND_VALUE)
+                .build();
+        URL url = null;
+        try {
+            url = new URL(buildUri.toString() + RESPOND_ADD_VALUE);
         } catch (MalformedURLException ex) {
             ex.printStackTrace();
         }
@@ -84,9 +112,37 @@ public class NetworkUtils {
             String userRating = result.getString(KEY_USER_RATING);
             String releaseDate = result.getString(KEY_RELEASE_DATE);
             String backdrop = result.getString(KEY_BACKDROP);
-            movies.add(new Movie(title, poster, overview, userRating, releaseDate, backdrop));
+            int movieId = result.getInt(KEY_MOVIE_ID);
+            Log.e("ID: ", String.valueOf(movieId));
+            Log.e("StringID: ", result.getString(KEY_MOVIE_ID));
+            movies.add(new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId));
         }
         return movies;
+    }
+
+    public static Movie parseMovieDetailJson(String json) throws JSONException {
+
+        JSONObject root = new JSONObject(json);
+        JSONArray genreList = root.getJSONArray(KEY_GENRES);
+
+        ArrayList<String> genres = new ArrayList<>();
+        for (int i = 0; i < genreList.length(); i++) {
+            JSONObject genre = genreList.getJSONObject(i);
+            String genreName = genre.getString(KEY_NAME);
+            genres.add(genreName);
+        }
+
+        String runtime = root.getString(KEY_RUNTIME);
+
+//        JSONObject credits = root.getJSONObject(KEY_CREDITS);
+//        JSONArray castList = credits.getJSONArray(KEY_CASTS);
+//        for (int i = 0; i < castList.length(); i++) {
+//            JSONObject cast = castList.getJSONObject(i);
+//            String character = cast.getString(KEY_CHARACTER);
+//            String actor = cast.getString(KEY_NAME);
+//            String profilePath = cast.getString(KEY_PROFILE_PATH);
+//        }
+        return new Movie(genres, runtime);
     }
 
     /**

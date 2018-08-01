@@ -9,4 +9,6 @@
     <string name="most_popular">Most popular</string>
     <string name="desc_backdrop">Backdrop of the movie</string>
     <string name="desc_poster">Movie poster</string>
+    <string name="genres">Genres</string>
+    <string name="runtime">Runtime</string>
 </resources>
