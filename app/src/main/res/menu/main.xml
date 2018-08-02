@@ -18,5 +18,8 @@
         <item
             android:id="@+id/sort_by_top_rated"
             android:title="@string/highest_rated" />
+        <item
+            android:id="@+id/sort_by_favourite"
+            android:title="@string/favourite"/>
     </group>
 </menu>

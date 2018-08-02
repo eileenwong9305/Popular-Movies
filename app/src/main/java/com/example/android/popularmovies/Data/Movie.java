@@ -1,5 +1,9 @@
 package com.example.android.popularmovies.Data;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+@Entity(tableName = "movie")
 public class Movie implements Parcelable {
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -23,19 +28,43 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     private String title;
     private String poster;
     private String overview;
+    @ColumnInfo(name = "user_rating")
     private String userRating;
+    @ColumnInfo(name = "release_date")
     private String releaseDate;
     private String backdrop;
+    @ColumnInfo(name = "movie_id")
     private int movieId;
 
+    @Ignore
     private ArrayList<String> genres;
+    @Ignore
     private String runtime;
+    @Ignore
     private ArrayList<Review> reviews;
+    @Ignore
     private ArrayList<String> videoKeys;
 
+
+    public Movie(int id, String title, String poster, String overview, String userRating,
+                 String releaseDate, String backdrop, int movieId) {
+        this.id = id;
+        this.title = title;
+        this.poster = poster;
+        this.overview = overview;
+        this.userRating = userRating;
+        this.releaseDate = releaseDate;
+        this.backdrop = backdrop;
+        this.movieId = movieId;
+    }
+
+    @Ignore
     public Movie(String title, String poster, String overview, String userRating,
                  String releaseDate, String backdrop, int movieId) {
         this.title = title;
@@ -47,6 +76,7 @@ public class Movie implements Parcelable {
         this.movieId = movieId;
     }
 
+    @Ignore
     public Movie(ArrayList<String> genres, String runtime, ArrayList<Review> reviews, ArrayList<String> videoKeys) {
         this.genres = genres;
         this.runtime = runtime;
@@ -54,6 +84,7 @@ public class Movie implements Parcelable {
         this.videoKeys = videoKeys;
     }
 
+    @Ignore
     public Movie(Parcel source) {
         this.title = source.readString();
         this.poster = source.readString();
@@ -62,6 +93,30 @@ public class Movie implements Parcelable {
         this.releaseDate = source.readString();
         this.backdrop = source.readString();
         this.movieId = source.readInt();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setGenres(ArrayList<String> genres) {
+        this.genres = genres;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
+    }
+
+    public void setReviews(ArrayList<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public void setVideoKeys(ArrayList<String> videoKeys) {
+        this.videoKeys = videoKeys;
     }
 
     public String getOverview() {
@@ -97,7 +152,7 @@ public class Movie implements Parcelable {
     }
 
     public String getReleaseDate() {
-        return convertDateString(releaseDate);
+        return releaseDate;
     }
 
     public void setReleaseDate(String releaseDate) {
@@ -158,7 +213,7 @@ public class Movie implements Parcelable {
      * @param dateString date in String type
      * @return Converted date string
      */
-    private String convertDateString(String dateString) {
+    public static String convertDateString(String dateString) {
         Date date = null;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString);

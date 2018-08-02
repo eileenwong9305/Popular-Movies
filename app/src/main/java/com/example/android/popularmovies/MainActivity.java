@@ -13,11 +13,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Database.FavouriteDatabase;
+import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.MoviesAdapter;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private ArrayList<Movie> movieList;
     private String sortByPath;
     private URL parseUrl;
+    private FavouriteDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        mDb = FavouriteDatabase.getInstance(getApplicationContext());
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
@@ -103,6 +109,19 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                     parseUrl = NetworkUtils.buildUrl(sortByPath);
                     new FetchMovieTask().execute(parseUrl);
                     return true;
+                case R.id.sort_by_favourite:
+                    AppExecutor.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            movieList = (ArrayList<Movie>) mDb.favouriteDao().loadAllFavourites();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.setMovies(movieList);
+                                }
+                            });
+                        }
+                    });
                 default:
                     return super.onOptionsItemSelected(item);
             }
