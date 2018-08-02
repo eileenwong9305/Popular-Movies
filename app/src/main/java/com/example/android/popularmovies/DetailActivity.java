@@ -1,17 +1,23 @@
 package com.example.android.popularmovies;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -48,6 +54,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.tv_detail_runtime) TextView runtimeTextView;
     @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
     @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
+    @BindView(R.id.fab) FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +93,19 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewRecyclerView.getContext(),
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+                            }
+                        }).show();
+            }
+        });
 
         new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movie.getMovieId()));
     }
