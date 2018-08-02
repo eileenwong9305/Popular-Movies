@@ -46,7 +46,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private TrailersAdapter trailersAdapter;
 
     private FavouriteDatabase mDb;
-    private List<Integer> movieIds;
     private boolean addToFavourite = false;
 
     @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
@@ -104,11 +103,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                movieIds = mDb.favouriteDao().loadAllFavouritesMovieId();
-                for (int movieid : movieIds) {
-                    Log.e("MOVE:", String.valueOf(movieid));
-                }
-
+                List<Integer> movieIds = mDb.favouriteDao().loadAllFavouritesMovieId();
                 if (movieIds != null && movieIds.contains(movie.getMovieId())) {
                     addToFavourite = true;
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
@@ -127,10 +122,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                         @Override
                         public void run() {
                             mDb.favouriteDao().deleteSingleMovie(movie.getMovieId());
-                            movieIds = mDb.favouriteDao().loadAllFavouritesMovieId();
-                            for (int movieid : movieIds) {
-                                Log.e("MOVE:", String.valueOf(movieid));
-                            }
                         }
                     });
                     addToFavourite = false;
