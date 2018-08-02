@@ -44,6 +44,10 @@ public class NetworkUtils {
     private static final String KEY_CHARACTER = "character";
     private static final String KEY_PROFILE_PATH = "profile_path";
 
+    private static final String KEY_VIDEOS = "videos";
+    private static final String KEY_VIDEO_KEY = "key";
+
+
     private static final String KEY_REVIEWS = "reviews";
     private static final String KEY_REVIEW_AUTHOR = "author";
     private static final String KEY_REVIEW_CONTENT = "content";
@@ -119,8 +123,6 @@ public class NetworkUtils {
             String releaseDate = result.getString(KEY_RELEASE_DATE);
             String backdrop = result.getString(KEY_BACKDROP);
             int movieId = result.getInt(KEY_MOVIE_ID);
-            Log.e("ID: ", String.valueOf(movieId));
-            Log.e("StringID: ", result.getString(KEY_MOVIE_ID));
             movies.add(new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId));
         }
         return movies;
@@ -149,6 +151,14 @@ public class NetworkUtils {
 //            String profilePath = cast.getString(KEY_PROFILE_PATH);
 //        }
 
+        ArrayList<String> videoKeys = new ArrayList<>();
+        JSONObject videosList = root.getJSONObject(KEY_VIDEOS);
+        JSONArray videoResults = videosList.getJSONArray(KEY_RESULTS);
+        for (int i = 0; i < videoResults.length(); i++) {
+            JSONObject videoKey = videoResults.getJSONObject(i);
+            videoKeys.add(videoKey.getString(KEY_VIDEO_KEY));
+        }
+
         JSONObject reviewsList = root.getJSONObject(KEY_REVIEWS);
         JSONArray reviewResults = reviewsList.getJSONArray(KEY_RESULTS);
         ArrayList<Review> reviews = new ArrayList<>();
@@ -158,7 +168,7 @@ public class NetworkUtils {
             String content = review.getString(KEY_REVIEW_CONTENT);
             reviews.add(new Review(author, content));
         }
-        return new Movie(genres, runtime, reviews);
+        return new Movie(genres, runtime, reviews, videoKeys);
     }
 
     /**

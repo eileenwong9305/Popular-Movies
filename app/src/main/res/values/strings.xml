@@ -12,4 +12,7 @@
     <string name="genres">Genres</string>
     <string name="runtime">Runtime</string>
     <string name="reviews">Reviews</string>
+
+    <string name="youtube_thumbanil_path" translatable="false">https://img.youtube.com/vi/%1$s/0.jpg</string>
+    <string name="trailers">Trailers</string>
 </resources>

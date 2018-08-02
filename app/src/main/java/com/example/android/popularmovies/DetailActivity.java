@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.ReviewsAdapter;
+import com.example.android.popularmovies.Utils.TrailersAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -24,14 +27,16 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DetailActivity extends AppCompatActivity implements ReviewsAdapter.ReviewItemListener{
+public class DetailActivity extends AppCompatActivity implements TrailersAdapter.TrailerClickListener {
 
     private static final String KEY_PARCEL = "selected_movie";
     private static final String BACKDROP_BASE_PATH = "http://image.tmdb.org/t/p/w500";
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
+    private static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
     private Movie movie;
     private ReviewsAdapter reviewsAdapter;
+    private TrailersAdapter trailersAdapter;
 
     @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
     @BindView(R.id.iv_detail_poster) ImageView posterImageView;
@@ -41,7 +46,8 @@ public class DetailActivity extends AppCompatActivity implements ReviewsAdapter.
     @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
     @BindView(R.id.tv_detail_genre) TextView genreTextView;
     @BindView(R.id.tv_detail_runtime) TextView runtimeTextView;
-    @BindView(R.id.rv_review) RecyclerView recyclerView;
+    @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
+    @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,30 +68,25 @@ public class DetailActivity extends AppCompatActivity implements ReviewsAdapter.
 
         ButterKnife.bind(this);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
+        reviewRecyclerView.setLayoutManager(reviewLayoutManager);
+        reviewRecyclerView.setHasFixedSize(true);
         reviewsAdapter = new ReviewsAdapter();
-        recyclerView.setAdapter(reviewsAdapter);
+        reviewRecyclerView.setAdapter(reviewsAdapter);
+
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL,
+                false);
+        trailerRecyclerView.setLayoutManager(trailerLayoutManager);
+        trailerRecyclerView.setHasFixedSize(true);
+        trailersAdapter = new TrailersAdapter(this);
+        trailerRecyclerView.setAdapter(trailersAdapter);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
+                reviewRecyclerView.getContext(),
+                reviewLayoutManager.getOrientation());
+        reviewRecyclerView.addItemDecoration(dividerItemDecoration);
 
-//        String backdropUrl = BACKDROP_BASE_PATH + movie.getBackdrop();
-//        Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
-//
-//        if (movie.getPoster().equals("null")) {
-//            posterImageView.setImageResource(R.drawable.no_pic);
-//        } else {
-//            String posterUrl = POSTER_BASE_PATH + movie.getPoster();
-//            Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
-//        }
-//        titleTextView.setText(movie.getTitle());
-//        overviewTextView.setText(movie.getOverview());
-//        userRatingTextView.setText(getString(R.string.user_rating_value, movie.getUserRating()));
-//        releaseDateTextView.setText(movie.getReleaseDate());
         new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movie.getMovieId()));
     }
 
@@ -100,9 +101,15 @@ public class DetailActivity extends AppCompatActivity implements ReviewsAdapter.
     }
 
     @Override
-    public void onClick(TextView textView) {
-        textView.setMaxLines(Integer.MAX_VALUE);
+    public void onClick(String movieKey) {
+        Uri youtubeUri = Uri.parse(YOUTUBE_BASE_URL + movieKey);
+        Intent startYoutube = new Intent(Intent.ACTION_VIEW, youtubeUri);
+        if (startYoutube.resolveActivity(getPackageManager()) != null) {
+            startActivity(startYoutube);
+        }
+
     }
+
 
     public class FetchMovieDetailTask extends AsyncTask<URL, Void, Movie> {
 
@@ -150,5 +157,7 @@ public class DetailActivity extends AppCompatActivity implements ReviewsAdapter.
             genreTextView.append(genre + " ");
         }
         reviewsAdapter.setReviews(addMovieDetails.getReviews());
+        trailersAdapter.setTrailerKeys(addMovieDetails.getVideoKeys());
+
     }
 }

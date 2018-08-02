@@ -34,6 +34,7 @@ public class Movie implements Parcelable {
     private ArrayList<String> genres;
     private String runtime;
     private ArrayList<Review> reviews;
+    private ArrayList<String> videoKeys;
 
     public Movie(String title, String poster, String overview, String userRating,
                  String releaseDate, String backdrop, int movieId) {
@@ -46,10 +47,11 @@ public class Movie implements Parcelable {
         this.movieId = movieId;
     }
 
-    public Movie(ArrayList<String> genres, String runtime, ArrayList<Review> reviews) {
+    public Movie(ArrayList<String> genres, String runtime, ArrayList<Review> reviews, ArrayList<String> videoKeys) {
         this.genres = genres;
         this.runtime = runtime;
         this.reviews = reviews;
+        this.videoKeys = videoKeys;
     }
 
     public Movie(Parcel source) {
@@ -128,6 +130,10 @@ public class Movie implements Parcelable {
 
     public ArrayList<Review> getReviews() {
         return reviews;
+    }
+
+    public ArrayList<String> getVideoKeys() {
+        return videoKeys;
     }
 
     @Override
