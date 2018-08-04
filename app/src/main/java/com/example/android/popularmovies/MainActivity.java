@@ -1,8 +1,12 @@
 package com.example.android.popularmovies;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -110,18 +114,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                     new FetchMovieTask().execute(parseUrl);
                     return true;
                 case R.id.sort_by_favourite:
-                    AppExecutor.getInstance().diskIO().execute(new Runnable() {
+//                    final LiveData<List<Movie>> favouriteMovies = mDb.favouriteDao().loadAllFavourites();
+                    MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+                    viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
                         @Override
-                        public void run() {
-                            movieList = (ArrayList<Movie>) mDb.favouriteDao().loadAllFavourites();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.setMovies(movieList);
-                                }
-                            });
+                        public void onChanged(@Nullable List<Movie> movies) {
+                            adapter.setMovies((ArrayList<Movie>) movies);
+                            movieList = (ArrayList<Movie>) movies;
                         }
                     });
+
                 default:
                     return super.onOptionsItemSelected(item);
             }

@@ -17,7 +17,7 @@ import java.util.List;
 public interface FavouriteDao {
 
     @Query("SELECT * FROM movie ORDER BY id")
-    List<Movie> loadAllFavourites();
+    LiveData<List<Movie>> loadAllFavourites();
 
     @Query("SELECT movie_id FROM movie ORDER BY id")
     List<Integer> loadAllFavouritesMovieId();
