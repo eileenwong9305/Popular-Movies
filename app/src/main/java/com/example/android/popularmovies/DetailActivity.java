@@ -205,7 +205,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         titleTextView.setText(movie.getTitle());
         overviewTextView.setText(movie.getOverview());
         userRatingTextView.setText(getString(R.string.user_rating_value, movie.getUserRating()));
-        Log.e("Date: ", movie.getReleaseDate());
         releaseDateTextView.setText(Movie.convertDateString(movie.getReleaseDate()));
         runtimeTextView.setText(addMovieDetails.getRuntime());
 

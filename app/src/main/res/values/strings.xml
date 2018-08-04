@@ -16,4 +16,17 @@
     <string name="youtube_thumbanil_path" translatable="false">https://img.youtube.com/vi/%1$s/0.jpg</string>
     <string name="trailers">Trailers</string>
     <string name="favourite">Favourite</string>
+    
+    <string name="pref_sort_label">Sort Order</string>
+    <string name="pref_sort_label_popular">Most Popular</string>
+    <string name="pref_sort_label_high_rated">Highest Rated</string>
+    <string name="pref_sort_label_upcoming">Upcoming</string>
+    <string name="pref_sort_label_favourites">Favourites</string>
+    <string name="pref_sort_key" translatable="false">sort</string>
+    <string name="pref_sort_popular">popular</string>
+    <string name="pref_sort_high_rated">top_rated</string>
+    <string name="pref_sort_upcoming">upcoming</string>
+    <string name="pref_sort_favourites">favourites</string>
+    <string name="action_setting">Settings</string>
+
 </resources>

@@ -4,10 +4,12 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -29,7 +31,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -62,22 +65,30 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         adapter = new MoviesAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        if (sortByPath == null) {
-            parseUrl = NetworkUtils.getDefaultSortByPathUrl();
-        }
-
         if (savedInstanceState == null || !savedInstanceState.containsKey(KEY_PARCEL_MOVIE_LIST)) {
             new FetchMovieTask().execute(parseUrl);
         } else {
             movieList = savedInstanceState.getParcelableArrayList(KEY_PARCEL_MOVIE_LIST);
             adapter.setMovies(movieList);
         }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        populateUI(sharedPreferences);
+
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(KEY_PARCEL_MOVIE_LIST, movieList);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -99,34 +110,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         if (id == R.id.action_refresh) {
             new FetchMovieTask().execute(parseUrl);
             return true;
-        }
-        if (!item.isChecked()) {
-            item.setChecked(true);
-            switch (id) {
-                case R.id.sort_by_top_rated:
-                    sortByPath = "top_rated";
-                    parseUrl = NetworkUtils.buildUrl(sortByPath);
-                    new FetchMovieTask().execute(parseUrl);
-                    return true;
-                case R.id.sort_by_popularity:
-                    sortByPath = "popular";
-                    parseUrl = NetworkUtils.buildUrl(sortByPath);
-                    new FetchMovieTask().execute(parseUrl);
-                    return true;
-                case R.id.sort_by_favourite:
-//                    final LiveData<List<Movie>> favouriteMovies = mDb.favouriteDao().loadAllFavourites();
-                    MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-                    viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
-                        @Override
-                        public void onChanged(@Nullable List<Movie> movies) {
-                            adapter.setMovies((ArrayList<Movie>) movies);
-                            movieList = (ArrayList<Movie>) movies;
-                        }
-                    });
-
-                default:
-                    return super.onOptionsItemSelected(item);
-            }
+        } else if (id == R.id.action_setting) {
+            Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -154,6 +141,30 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         errorMessageTextView.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.INVISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(getString(R.string.pref_sort_key))) {
+            populateUI(sharedPreferences);
+        }
+    }
+
+    private void populateUI(SharedPreferences sharedPreferences) {
+        String sort_by = sharedPreferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
+        if (sort_by.equals(getString(R.string.pref_sort_favourites))){
+            MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+            viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+                @Override
+                public void onChanged(@Nullable List<Movie> movies) {
+                    adapter.setMovies((ArrayList<Movie>) movies);
+                    movieList = (ArrayList<Movie>) movies;
+                }
+            });
+        } else {
+            parseUrl = NetworkUtils.buildUrl(sort_by);
+            new FetchMovieTask().execute(parseUrl);
+        }
     }
 
     public class FetchMovieTask extends AsyncTask<URL, Void, ArrayList<Movie>> {
