@@ -27,6 +27,7 @@
     <string name="pref_sort_high_rated">top_rated</string>
     <string name="pref_sort_upcoming">upcoming</string>
     <string name="pref_sort_favourites">favourites</string>
+    <string name="pref_sort_default">@string/pref_sort_popular</string>
     <string name="action_setting">Settings</string>
 
 </resources>

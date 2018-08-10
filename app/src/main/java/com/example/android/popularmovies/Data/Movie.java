@@ -3,9 +3,11 @@ package com.example.android.popularmovies.Data;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-@Entity(tableName = "movie")
+@Entity(tableName = "movie", indices = {@Index(value = {"movie_id"}, unique = true)})
 public class Movie implements Parcelable {
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -214,6 +216,7 @@ public class Movie implements Parcelable {
      * @return Converted date string
      */
     public static String convertDateString(String dateString) {
+        Log.e("DATE", dateString);
         Date date = null;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString);

@@ -23,14 +23,17 @@ public interface FavouriteDao {
     List<Integer> loadAllFavouritesMovieId();
 
     @Insert
-    void insertFavourite(Movie movieEntry);
+    void insertFavourite(Movie movie);
 
     @Delete
-    void deleteFavourite(Movie movieEntry);
+    void deleteFavourite(Movie movie);
 
     @Query("DELETE FROM movie WHERE movie_id = :movieId")
     void deleteSingleMovie(int movieId);
 
     @Query("SELECT * FROM movie WHERE movie_id = :movieId")
     Movie loadFavouriteByMovieId(int movieId);
+
+    @Query("SELECT COUNT(id) FROM movie WHERE movie_id = :movieId")
+    int getCountByMovieId(int movieId);
 }

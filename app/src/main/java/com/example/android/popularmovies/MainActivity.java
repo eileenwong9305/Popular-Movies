@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
+import com.example.android.popularmovies.Utils.InjectorUtils;
+import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
 import com.example.android.popularmovies.Utils.MoviesAdapter;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 
@@ -46,9 +49,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 
     private MoviesAdapter adapter;
     private ArrayList<Movie> movieList;
-    private String sortByPath;
-    private URL parseUrl;
-    private FavouriteDatabase mDb;
+    private SharedPreferences mSharedPreferences;
+
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,33 +60,34 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 
         ButterKnife.bind(this);
 
-        mDb = FavouriteDatabase.getInstance(getApplicationContext());
-
         GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new MoviesAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        if (savedInstanceState == null || !savedInstanceState.containsKey(KEY_PARCEL_MOVIE_LIST)) {
-            new FetchMovieTask().execute(parseUrl);
-        } else {
-            movieList = savedInstanceState.getParcelableArrayList(KEY_PARCEL_MOVIE_LIST);
-            adapter.setMovies(movieList);
-        }
+        showOnlyLoading();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        populateUI(sharedPreferences);
+        MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext(), getApplication());
+        viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
 
+//        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PARCEL_MOVIE_LIST)) {
+////            movieList = savedInstanceState.getParcelableArrayList(KEY_PARCEL_MOVIE_LIST);
+////            adapter.setMovies(movieList);
+////        } else {
+////            populateUI();
+////        }
+        populateUI();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(KEY_PARCEL_MOVIE_LIST, movieList);
-        super.onSaveInstanceState(outState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        outState.putParcelableArrayList(KEY_PARCEL_MOVIE_LIST, movieList);
+//        super.onSaveInstanceState(outState);
+//    }
 
     @Override
     protected void onDestroy() {
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            new FetchMovieTask().execute(parseUrl);
+            populateUI();
             return true;
         } else if (id == R.id.action_setting) {
             Intent intent = new Intent(MainActivity.this, SettingActivity.class);
@@ -122,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      * Show data and hide error message
      */
     private void showMovieData() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
         errorMessageTextView.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
     }
@@ -130,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      * Show error message and hide data
      */
     private void showErrorMessage() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
         errorMessageTextView.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.INVISIBLE);
     }
@@ -145,63 +151,37 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        final String sortOrder = mSharedPreferences.getString(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popular));
         if (s.equals(getString(R.string.pref_sort_key))) {
-            populateUI(sharedPreferences);
+            populateUI();
         }
     }
 
-    private void populateUI(SharedPreferences sharedPreferences) {
-        String sort_by = sharedPreferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
-        if (sort_by.equals(getString(R.string.pref_sort_favourites))){
-            MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-            viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
-                @Override
-                public void onChanged(@Nullable List<Movie> movies) {
-                    adapter.setMovies((ArrayList<Movie>) movies);
-                    movieList = (ArrayList<Movie>) movies;
-                }
-            });
-        } else {
-            parseUrl = NetworkUtils.buildUrl(sort_by);
-            new FetchMovieTask().execute(parseUrl);
-        }
-    }
-
-    public class FetchMovieTask extends AsyncTask<URL, Void, ArrayList<Movie>> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showOnlyLoading();
-        }
-
-        @Override
-        protected ArrayList<Movie> doInBackground(URL... urls) {
-            if (urls.length == 0) {
-                return null;
-            }
-            URL parseUrl = urls[0];
-            if (NetworkUtils.isOnline()) {
-                try {
-                    String json = NetworkUtils.getResponseFromHttp(parseUrl);
-                    return NetworkUtils.parseMovieJson(json);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+    private void populateUI() {
+        final String sortOrder = mSharedPreferences.getString(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popular));
+        Log.e("Sort order Main", sortOrder);
+        viewModel.getMovies(sortOrder).observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+//                if (!sortOrder.equals(getString(R.string.pref_sort_favourites))){
+//                    viewModel.getMovies().removeObserver(this);
+//                    return;
+//                }
+//                movieList = (ArrayList<Movie>) movies;
+                Log.e("Sort order listener", movies.toString());
+                adapter.setMovies((ArrayList<Movie>) movies);
+                Log.e("Sort order listener","setAdapter");
+                if (movies != null && movies.size() != 0) {
+                    showMovieData();
+                } else {
+                    showErrorMessage();
                 }
             }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> movies) {
-            loadingIndicator.setVisibility(View.INVISIBLE);
-            if (movies != null) {
-                movieList = movies;
-                adapter.setMovies(movies);
-                showMovieData();
-            } else {
-                showErrorMessage();
-            }
-        }
+        });
     }
+
 }

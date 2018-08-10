@@ -1,10 +1,14 @@
 package com.example.android.popularmovies;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
@@ -22,6 +26,7 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
+import com.example.android.popularmovies.Utils.InjectorUtils;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.ReviewsAdapter;
 import com.example.android.popularmovies.Utils.TrailersAdapter;
@@ -46,6 +51,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private TrailersAdapter trailersAdapter;
 
     private FavouriteDatabase mDb;
+    private DetailViewModel viewModel;
     private boolean addToFavourite = false;
 
     @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
@@ -100,11 +106,21 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
 
+        DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
+        viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
+//        viewModel.getFavouriteMovieId().observe(this, new Observer<List<Integer>>() {
+//            @Override
+//            public void onChanged(@Nullable List<Integer> movieIds) {
+//                if (movieIds != null && movieIds.contains(movie.getMovieId())) {
+//                    addToFavourite = true;
+//                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+//                }
+//            }
+//        });
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                List<Integer> movieIds = mDb.favouriteDao().loadAllFavouritesMovieId();
-                if (movieIds != null && movieIds.contains(movie.getMovieId())) {
+                if (viewModel.containMovieId(movie.getMovieId())) {
                     addToFavourite = true;
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
@@ -118,24 +134,14 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             public void onClick(View view) {
                 if (addToFavourite) {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
-                    AppExecutor.getInstance().diskIO().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mDb.favouriteDao().deleteSingleMovie(movie.getMovieId());
-                        }
-                    });
+                    viewModel.deleteSingleMovie(movie.getMovieId());
                     addToFavourite = false;
 
                     Snackbar.make(view, "Removed from Favourite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    AppExecutor.getInstance().diskIO().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mDb.favouriteDao().insertFavourite(movie);
-                        }
-                    });
+                    viewModel.insertFavourite(movie);
                     addToFavourite = true;
                     Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -205,6 +211,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         titleTextView.setText(movie.getTitle());
         overviewTextView.setText(movie.getOverview());
         userRatingTextView.setText(getString(R.string.user_rating_value, movie.getUserRating()));
+        Log.e(this.getClass().getSimpleName(), movie.getReleaseDate());
         releaseDateTextView.setText(Movie.convertDateString(movie.getReleaseDate()));
         runtimeTextView.setText(addMovieDetails.getRuntime());
 
