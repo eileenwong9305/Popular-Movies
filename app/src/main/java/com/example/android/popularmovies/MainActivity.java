@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext(), getApplication());
+        MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
 
 //        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PARCEL_MOVIE_LIST)) {
@@ -80,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 ////        } else {
 ////            populateUI();
 ////        }
-        populateUI();
+
+        loadMovies(mSharedPreferences);
     }
 
 //    @Override
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            populateUI();
+            loadMovies(mSharedPreferences);
             return true;
         } else if (id == R.id.action_setting) {
             Intent intent = new Intent(MainActivity.this, SettingActivity.class);
@@ -151,31 +153,18 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        final String sortOrder = mSharedPreferences.getString(
-                getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_popular));
-        if (s.equals(getString(R.string.pref_sort_key))) {
-            populateUI();
-        }
+        loadMovies(sharedPreferences);
     }
 
-    private void populateUI() {
-        final String sortOrder = mSharedPreferences.getString(
+    private void loadMovies(SharedPreferences sharedPreferences) {
+        String sortOrder = sharedPreferences.getString(
                 getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popular));
-        Log.e("Sort order Main", sortOrder);
         viewModel.getMovies(sortOrder).observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
-//                if (!sortOrder.equals(getString(R.string.pref_sort_favourites))){
-//                    viewModel.getMovies().removeObserver(this);
-//                    return;
-//                }
-//                movieList = (ArrayList<Movie>) movies;
-                Log.e("Sort order listener", movies.toString());
                 adapter.setMovies((ArrayList<Movie>) movies);
-                Log.e("Sort order listener","setAdapter");
-                if (movies != null && movies.size() != 0) {
+                if (movies.size() != 0) {
                     showMovieData();
                 } else {
                     showErrorMessage();

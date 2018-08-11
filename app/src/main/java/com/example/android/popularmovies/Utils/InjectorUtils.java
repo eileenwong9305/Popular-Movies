@@ -23,9 +23,9 @@ public class InjectorUtils {
         return  MovieNetworkDataSource.getInstance(appExecutor);
     }
 
-    public static MainViewModelFactory provideMainViewModelFactory(Context context, Application application) {
+    public static MainViewModelFactory provideMainViewModelFactory(Context context) {
         MovieRepository repository = provideRepository(context.getApplicationContext());
-        return new MainViewModelFactory(application, repository);
+        return new MainViewModelFactory(repository);
 
     }
 }

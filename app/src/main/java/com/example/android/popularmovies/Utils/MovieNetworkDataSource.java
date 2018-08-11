@@ -57,4 +57,8 @@ public class MovieNetworkDataSource {
     public LiveData<List<Movie>> getMovieData() {
         return downloadedMovieData;
     }
+
+    public MutableLiveData<List<Movie>> getDownloadedMovieData() {
+        return downloadedMovieData;
+    }
 }

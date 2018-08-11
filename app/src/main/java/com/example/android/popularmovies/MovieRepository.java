@@ -2,9 +2,13 @@ package com.example.android.popularmovies;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.android.popularmovies.Data.Movie;
@@ -22,6 +26,7 @@ public class MovieRepository {
     private FavouriteDao favouriteDao;
     private MovieNetworkDataSource movieNetworkDataSource;
     private AppExecutor appExecutor;
+    private LiveData<List<Movie>> selectedMovieList;
 
     private static final String FAVOURITE_DATABASE_VALUE = "favourites";
 
@@ -44,16 +49,21 @@ public class MovieRepository {
 
     public LiveData<List<Movie>> getMovieData(String sortOrder) {
         if (sortOrder.equals(FAVOURITE_DATABASE_VALUE)) {
-            Log.e(getClass().getSimpleName(), "fav");
-            Log.e(getClass().getSimpleName(), favouriteDao.loadAllFavourites().toString());
-            return favouriteDao.loadAllFavourites();
+            selectedMovieList = favouriteDao.loadAllFavourites();
         } else {
-            Log.e(getClass().getSimpleName(), "other");
             movieNetworkDataSource.fetchMovie(sortOrder);
-            Log.e(getClass().getSimpleName(), movieNetworkDataSource.getMovieData().toString());
-            return movieNetworkDataSource.getMovieData();
+            selectedMovieList = movieNetworkDataSource.getMovieData();
         }
+        return selectedMovieList;
+    }
 
+    public LiveData<List<Movie>> getOtherMovieData(String sortOrder) {
+        movieNetworkDataSource.fetchMovie(sortOrder);
+        return movieNetworkDataSource.getMovieData();
+    }
+
+    public LiveData<List<Movie>> getFavouriteMovieData() {
+        return favouriteDao.loadAllFavourites();
     }
 
     public boolean containMovieId(int movieId){
