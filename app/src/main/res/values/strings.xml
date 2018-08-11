@@ -11,6 +11,7 @@
     <string name="desc_poster">Movie poster</string>
     <string name="genres">Genres</string>
     <string name="runtime">Runtime</string>
+    <string name="runtime_value">%1$s min</string>
     <string name="reviews">Reviews</string>
 
     <string name="youtube_thumbanil_path" translatable="false">https://img.youtube.com/vi/%1$s/0.jpg</string>

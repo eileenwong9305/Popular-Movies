@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.android.popularmovies.BuildConfig;
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Data.Review;
 
 import org.json.JSONArray;
@@ -19,6 +20,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -101,29 +103,25 @@ public class NetworkUtils {
     }
 
     /**
-     * Parses JSON from web response and return ArrayList of Movie objects
+     * Parses JSON from web response and return List of Movie objects
      *
      * @param json JSON response from server
-     * @return ArrayList of Movie object
+     * @return List of Movie object
      * @throws JSONException if JSON cannot be properly parsed
      */
-    public static ArrayList<Movie> parseMovieJson(String json) throws JSONException {
+    public static List<MovieList> parseMovieJson(String json) throws JSONException {
 
         JSONObject root = new JSONObject(json);
         JSONArray results = root.getJSONArray(KEY_RESULTS);
 
-        ArrayList<Movie> movies = new ArrayList<>();
+        List<MovieList> movies = new ArrayList<>();
 
         for (int i = 0; i < results.length(); i++) {
             JSONObject result = results.getJSONObject(i);
             String title = result.getString(KEY_TITLE);
             String poster = result.getString(KEY_POSTER_PATH);
-            String overview = result.getString(KEY_OVERVIEW);
-            String userRating = result.getString(KEY_USER_RATING);
-            String releaseDate = result.getString(KEY_RELEASE_DATE);
-            String backdrop = result.getString(KEY_BACKDROP);
             int movieId = result.getInt(KEY_MOVIE_ID);
-            movies.add(new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId));
+            movies.add(new MovieList(title, poster, movieId));
         }
         return movies;
     }
@@ -131,6 +129,15 @@ public class NetworkUtils {
     public static Movie parseMovieDetailJson(String json) throws JSONException {
 
         JSONObject root = new JSONObject(json);
+
+        String title = root.getString(KEY_TITLE);
+        String poster = root.getString(KEY_POSTER_PATH);
+        String backdrop = root.getString(KEY_BACKDROP);
+        String releaseDate = root.getString(KEY_RELEASE_DATE);
+        String overview = root.getString(KEY_OVERVIEW);
+        String userRating = root.getString(KEY_USER_RATING);
+        int movieId = root.getInt(KEY_MOVIE_ID);
+
         JSONArray genreList = root.getJSONArray(KEY_GENRES);
 
         ArrayList<String> genres = new ArrayList<>();
@@ -168,7 +175,8 @@ public class NetworkUtils {
             String content = review.getString(KEY_REVIEW_CONTENT);
             reviews.add(new Review(author, content));
         }
-        return new Movie(genres, runtime, reviews, videoKeys);
+        return new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime,
+                reviews, videoKeys);
     }
 
     /**

@@ -9,15 +9,16 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Dao
-public interface FavouriteDao {
+public interface MovieDao {
 
-    @Query("SELECT * FROM movie ORDER BY id")
-    LiveData<List<Movie>> loadAllFavourites();
+    @Query("SELECT id, title, poster, movie_id FROM movie ORDER BY id")
+    LiveData<List<MovieList>> loadAllFavouritesList();
 
     @Query("SELECT movie_id FROM movie ORDER BY id")
     List<Integer> loadAllFavouritesMovieId();

@@ -28,5 +28,5 @@ public abstract class FavouriteDatabase extends RoomDatabase {
         return sInstance;
     }
 
-    public abstract FavouriteDao favouriteDao();
+    public abstract MovieDao favouriteDao();
 }

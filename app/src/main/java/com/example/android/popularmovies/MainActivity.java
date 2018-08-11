@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.InjectorUtils;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final int SPAN_COUNT = 2;
-    private static final String KEY_PARCEL_INTENT = "selected_movie";
+    public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie";
     private static final String KEY_PARCEL_MOVIE_LIST = "movies_list";
 
     @BindView(R.id.pb_loading_indicator) ProgressBar loadingIndicator;
@@ -98,9 +99,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     }
 
     @Override
-    public void onClick(Movie movie) {
+    public void onClick(MovieList movie) {
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-        intent.putExtra(KEY_PARCEL_INTENT, movie);
+        intent.putExtra(KEY_SELECTED_MOVIE_ID_INTENT, movie.getMovieId());
         startActivity(intent);
     }
 
@@ -160,11 +161,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         String sortOrder = sharedPreferences.getString(
                 getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popular));
-        viewModel.getMovies(sortOrder).observe(this, new Observer<List<Movie>>() {
+        viewModel.getMovies(sortOrder).observe(this, new Observer<List<MovieList>>() {
             @Override
-            public void onChanged(@Nullable List<Movie> movies) {
-                adapter.setMovies((ArrayList<Movie>) movies);
-                if (movies.size() != 0) {
+            public void onChanged(@Nullable List<MovieList> movieLists) {
+                adapter.setMovies(movieLists);
+                if (movieLists.size() != 0) {
                     showMovieData();
                 } else {
                     showErrorMessage();
@@ -172,5 +173,4 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
             }
         });
     }
-
 }

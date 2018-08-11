@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.util.Log;
 
 import com.example.android.popularmovies.Data.Movie;
 

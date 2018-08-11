@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
 
@@ -23,7 +24,7 @@ public class MainViewModel extends ViewModel {
         this.repository = repository;
     }
 
-    public LiveData<List<Movie>> getMovies(String sortOrder) {
+    public LiveData<List<MovieList>> getMovies(String sortOrder) {
         return repository.getMovieData(sortOrder);
     }
 

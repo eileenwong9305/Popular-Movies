@@ -17,19 +17,7 @@ import java.util.Date;
 import java.util.Locale;
 
 @Entity(tableName = "movie", indices = {@Index(value = {"movie_id"}, unique = true)})
-public class Movie implements Parcelable {
-
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
-        @Override
-        public Movie createFromParcel(Parcel source) {
-            return new Movie(source);
-        }
-
-        @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
-        }
-    };
+public class Movie {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -68,7 +56,8 @@ public class Movie implements Parcelable {
 
     @Ignore
     public Movie(String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId) {
+                 String releaseDate, String backdrop, int movieId, ArrayList<String> genres, String runtime,
+                 ArrayList<Review> reviews, ArrayList<String> videoKeys) {
         this.title = title;
         this.poster = poster;
         this.overview = overview;
@@ -76,25 +65,10 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
         this.backdrop = backdrop;
         this.movieId = movieId;
-    }
-
-    @Ignore
-    public Movie(ArrayList<String> genres, String runtime, ArrayList<Review> reviews, ArrayList<String> videoKeys) {
         this.genres = genres;
         this.runtime = runtime;
         this.reviews = reviews;
         this.videoKeys = videoKeys;
-    }
-
-    @Ignore
-    public Movie(Parcel source) {
-        this.title = source.readString();
-        this.poster = source.readString();
-        this.overview = source.readString();
-        this.userRating = source.readString();
-        this.releaseDate = source.readString();
-        this.backdrop = source.readString();
-        this.movieId = source.readInt();
     }
 
     public int getId() {
@@ -193,21 +167,6 @@ public class Movie implements Parcelable {
         return videoKeys;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(title);
-        dest.writeString(poster);
-        dest.writeString(overview);
-        dest.writeString(userRating);
-        dest.writeString(releaseDate);
-        dest.writeString(backdrop);
-        dest.writeInt(movieId);
-    }
 
     /**
      * Change the date format

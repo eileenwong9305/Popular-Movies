@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class MovieNetworkDataSource {
     private static MovieNetworkDataSource sInstance;
     private final AppExecutor appExecutor;
 
-    private final MutableLiveData<List<Movie>> downloadedMovieData;
+    private final MutableLiveData<List<MovieList>> downloadedMovieData;
 
     private MovieNetworkDataSource (AppExecutor appExecutor) {
         this.appExecutor = appExecutor;
@@ -40,7 +41,7 @@ public class MovieNetworkDataSource {
                     try {
                         URL queryUrl = NetworkUtils.buildUrl(sortOrder);
                         String json = NetworkUtils.getResponseFromHttp(queryUrl);
-                        List<Movie> movies = NetworkUtils.parseMovieJson(json);
+                        List<MovieList> movies = NetworkUtils.parseMovieJson(json);
                         if (movies != null) {
                             downloadedMovieData.postValue(movies);
                         }
@@ -54,11 +55,11 @@ public class MovieNetworkDataSource {
         });
     }
 
-    public LiveData<List<Movie>> getMovieData() {
+    public LiveData<List<MovieList>> getMovieData() {
         return downloadedMovieData;
     }
 
-    public MutableLiveData<List<Movie>> getDownloadedMovieData() {
+    public MutableLiveData<List<MovieList>> getDownloadedMovieData() {
         return downloadedMovieData;
     }
 }

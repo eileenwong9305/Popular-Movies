@@ -46,7 +46,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
     private static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
-    private Movie movie;
+    private Movie mMovie;
+    private int movieId;
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
 
@@ -80,8 +81,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
         Intent intent = getIntent();
         if (intent != null) {
-            if (intent.hasExtra(KEY_PARCEL)) {
-                movie = intent.getParcelableExtra(KEY_PARCEL);
+            if (intent.hasExtra(MainActivity.KEY_SELECTED_MOVIE_ID_INTENT)) {
+                movieId = intent.getIntExtra(MainActivity.KEY_SELECTED_MOVIE_ID_INTENT, 0);
             }
         }
 
@@ -106,6 +107,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
 
+        new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movieId));
+
         DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
 //        viewModel.getFavouriteMovieId().observe(this, new Observer<List<Integer>>() {
@@ -120,28 +123,26 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                if (viewModel.containMovieId(movie.getMovieId())) {
+                if (viewModel.containMovieId(movieId)) {
                     addToFavourite = true;
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
             }
         });
 
-
-
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (addToFavourite) {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
-                    viewModel.deleteSingleMovie(movie.getMovieId());
+                    viewModel.deleteSingleMovie(movieId);
                     addToFavourite = false;
 
                     Snackbar.make(view, "Removed from Favourite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    viewModel.insertFavourite(movie);
+                    viewModel.insertFavourite(mMovie);
                     addToFavourite = true;
                     Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -149,7 +150,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             }
         });
 
-        new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movie.getMovieId()));
     }
 
     @Override
@@ -192,35 +192,35 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
         @Override
         protected void onPostExecute(Movie movie) {
+            mMovie = movie;
             if (movie != null) {
                 showMovieDetails(movie);
             }
         }
     }
 
-    private void showMovieDetails(Movie addMovieDetails) {
-        String backdropUrl = BACKDROP_BASE_PATH + movie.getBackdrop();
+    private void showMovieDetails(Movie movieDetails) {
+        String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
         Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
 
-        if (movie.getPoster().equals("null")) {
+        if (movieDetails.getPoster().equals("null")) {
             posterImageView.setImageResource(R.drawable.no_pic);
         } else {
-            String posterUrl = POSTER_BASE_PATH + movie.getPoster();
+            String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
             Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
         }
-        titleTextView.setText(movie.getTitle());
-        overviewTextView.setText(movie.getOverview());
-        userRatingTextView.setText(getString(R.string.user_rating_value, movie.getUserRating()));
-        Log.e(this.getClass().getSimpleName(), movie.getReleaseDate());
-        releaseDateTextView.setText(Movie.convertDateString(movie.getReleaseDate()));
-        runtimeTextView.setText(addMovieDetails.getRuntime());
+        titleTextView.setText(movieDetails.getTitle());
+        overviewTextView.setText(movieDetails.getOverview());
+        userRatingTextView.setText(getString(R.string.user_rating_value, movieDetails.getUserRating()));
+        Log.e(this.getClass().getSimpleName(), movieDetails.getReleaseDate());
+        releaseDateTextView.setText(Movie.convertDateString(movieDetails.getReleaseDate()));
+        runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
 
-        ArrayList<String> genres = addMovieDetails.getGenres();
+        ArrayList<String> genres = movieDetails.getGenres();
         for (String genre : genres) {
             genreTextView.append(genre + " ");
         }
-        reviewsAdapter.setReviews(addMovieDetails.getReviews());
-        trailersAdapter.setTrailerKeys(addMovieDetails.getVideoKeys());
-
+        reviewsAdapter.setReviews(movieDetails.getReviews());
+        trailersAdapter.setTrailerKeys(movieDetails.getVideoKeys());
     }
 }
