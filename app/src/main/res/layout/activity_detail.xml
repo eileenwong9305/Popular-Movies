@@ -15,16 +15,25 @@
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/activity_padding_vertical">
 
-            <ImageView
-                android:id="@+id/iv_detail_backdrop"
+            <FrameLayout
+                android:id="@+id/backdrop_frame"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/backdrop_height"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/desc_backdrop"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/iv_detail_backdrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/backdrop_height"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/desc_backdrop"
+                    tools:src="@drawable/ic_movie_white_24dp" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/gradient_backdrop" />
+            </FrameLayout>
 
             <ImageView
                 android:id="@+id/iv_detail_poster"
@@ -32,52 +41,67 @@
                 android:layout_height="@dimen/poster_height"
                 android:layout_marginLeft="@dimen/content_horizontal_margin"
                 android:layout_marginStart="@dimen/content_horizontal_margin"
+                android:layout_marginTop="8dp"
                 android:adjustViewBounds="true"
                 android:background="@drawable/border"
                 android:contentDescription="@string/desc_poster"
                 android:scaleType="centerCrop"
-                app:layout_constraintBottom_toTopOf="@+id/tv_detail_title"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_detail_title" />
+                app:layout_constraintTop_toBottomOf="@+id/backdrop_frame" />
 
             <TextView
                 android:id="@+id/tv_detail_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/label_horizontal_margin"
-                android:layout_marginLeft="@dimen/label_horizontal_margin"
-                android:layout_marginRight="@dimen/label_horizontal_margin"
-                android:layout_marginStart="@dimen/label_horizontal_margin"
-                android:layout_marginTop="@dimen/label_horizontal_margin"
-                android:textColor="@android:color/black"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginStart="10dp"
+                android:textColor="@android:color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
-                app:layout_constraintTop_toBottomOf="@+id/iv_detail_backdrop" />
+                app:layout_constraintBottom_toBottomOf="@+id/backdrop_frame"
+                app:layout_constraintEnd_toStartOf="@+id/tv_detail_user_rating"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/backdrop_frame" />
 
             <TextView
                 android:id="@+id/release_date_label"
                 style="@style/DetailInfoStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/release_date"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/genre_label" />
+                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
+                app:layout_constraintTop_toBottomOf="@+id/runtime_label"
+                tools:layout_editor_absoluteY="480dp" />
 
             <TextView
                 android:id="@+id/tv_detail_release_date"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:textSize="16sp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/release_date_label"
                 app:layout_constraintStart_toEndOf="@+id/barrier3"
                 tools:text="12 Jan 2014" />
+
+            <!--<RatingBar-->
+            <!--android:id="@+id/rating_bar"-->
+            <!--style="?android:attr/ratingBarStyleSmall"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:numStars="5"-->
+            <!--android:progressTint="@color/colorPrimaryDark"-->
+            <!--android:rating="3.3"-->
+            <!--android:stepSize="0.01"-->
+            <!--app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"-->
+            <!--app:layout_constraintTop_toTopOf="@+id/iv_detail_poster" />-->
 
 
             <TextView
@@ -85,69 +109,87 @@
                 style="@style/DetailInfoStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/label_horizontal_margin"
-                android:layout_marginLeft="@dimen/label_horizontal_margin"
-                android:layout_marginStart="@dimen/label_horizontal_margin"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 android:text="@string/user_rating"
-                app:layout_constraintBottom_toBottomOf="@+id/iv_detail_poster"
-                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster" />
+                android:textColor="#e0e0e0"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/backdrop_frame"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tv_detail_user_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:textSize="16sp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/user_rating_label"
-                app:layout_constraintStart_toEndOf="@+id/user_rating_label"
-                tools:text="9.6/10" />
+                android:textColor="#fff59d"
+                android:textSize="28sp"
+                app:layout_constraintBottom_toTopOf="@+id/user_rating_label"
+                app:layout_constraintEnd_toEndOf="@+id/user_rating_label"
+                app:layout_constraintStart_toStartOf="@+id/user_rating_label"
+                tools:text="9.6" />
 
             <TextView
-                android:id="@+id/genre_label"
+                android:id="@+id/language_label"
                 style="@style/DetailInfoStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/genres"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster" />
+                android:text="@string/language"
+                app:layout_constraintStart_toStartOf="@+id/runtime_label"
+                app:layout_constraintTop_toBottomOf="@+id/rv_genre"
+                tools:layout_editor_absoluteY="498dp" />
 
-            <TextView
-                android:id="@+id/tv_detail_genre"
-                android:layout_width="wrap_content"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_genre"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginStart="8dp"
-                android:textSize="16sp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/genre_label"
-                app:layout_constraintStart_toEndOf="@+id/barrier3"
-                tools:text="Comedy, Horror" />
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
+                app:layout_constraintTop_toTopOf="@+id/iv_detail_poster" />
+
+            <!--<TextView-->
+            <!--android:id="@+id/tv_detail_genre"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginEnd="16dp"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginRight="16dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:textSize="16sp"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"-->
+            <!--app:layout_constraintTop_toTopOf="@+id/iv_detail_poster"-->
+            <!--tools:text="Comedy, Horror" />-->
 
             <TextView
                 android:id="@+id/runtime_label"
                 style="@style/DetailInfoStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:text="@string/runtime"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.049"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/release_date_label" />
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@+id/release_date_label"
+                app:layout_constraintTop_toBottomOf="@+id/language_label"
+                tools:layout_editor_absoluteY="454dp" />
 
             <TextView
                 android:id="@+id/tv_detail_runtime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:textSize="16sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/runtime_label"
-                app:layout_constraintStart_toEndOf="@+id/barrier3"
-                tools:text="144 min" />
+                app:layout_constraintStart_toStartOf="@+id/tv_detail_release_date"
+                tools:text="144 minutes" />
 
             <android.support.constraint.Barrier
                 android:id="@+id/barrier3"
@@ -159,20 +201,6 @@
                 app:constraint_referenced_ids="runtime_label,release_date_label, genre_label"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <View
-                android:id="@+id/separator"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/colorSeparator"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/runtime_label" />
 
             <android.support.v7.widget.CardView
                 android:id="@+id/cardview_overview"
@@ -180,7 +208,7 @@
                 app:cardCornerRadius="5dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/separator">
+                app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -189,22 +217,21 @@
 
                     <TextView
                         android:id="@+id/overview_label"
-                        android:text="@string/synopsis"
                         style="@style/ContentLabelStyle"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/synopsis" />
 
                     <TextView
                         android:id="@+id/tv_detail_overview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
                         android:layout_marginEnd="@dimen/content_horizontal_margin"
                         android:layout_marginLeft="@dimen/content_horizontal_margin"
                         android:layout_marginRight="@dimen/content_horizontal_margin"
                         android:layout_marginStart="@dimen/content_horizontal_margin"
-                        android:layout_marginBottom="16dp"
                         android:lineSpacingExtra="3dp"
-                        android:lineSpacingMultiplier="1"
-                        android:textSize="16sp" />
+                        android:lineSpacingMultiplier="1"/>
 
                 </LinearLayout>
 
@@ -226,14 +253,14 @@
                     <TextView
                         android:id="@+id/trailers_label"
                         style="@style/ContentLabelStyle"
-                        android:text="@string/trailers"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/trailers" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_trailer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingRight="16dp"/>
+                        android:paddingRight="16dp" />
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -266,14 +293,17 @@
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
+
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="end|bottom"
-        app:backgroundTint="@color/colorPrimary"
-        android:src="@drawable/ic_favorite_48dp"/>
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_favorite_48dp"
+        app:backgroundTint="@color/colorPrimary" />
 </FrameLayout>

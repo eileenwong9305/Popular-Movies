@@ -21,11 +21,15 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
+import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
+import com.example.android.popularmovies.Utils.GenreAdapter;
 import com.example.android.popularmovies.Utils.InjectorUtils;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.ReviewsAdapter;
@@ -50,6 +54,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private int movieId;
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
+    private GenreAdapter genreAdapter;
 
     private FavouriteDatabase mDb;
     private DetailViewModel viewModel;
@@ -61,11 +66,13 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.tv_detail_overview) TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
     @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
-    @BindView(R.id.tv_detail_genre) TextView genreTextView;
+//    @BindView(R.id.tv_detail_genre) TextView genreTextView;
     @BindView(R.id.tv_detail_runtime) TextView runtimeTextView;
     @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
     @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
     @BindView(R.id.fab) FloatingActionButton fab;
+//    @BindView(R.id.rating_bar) RatingBar ratingBar;
+    @BindView(R.id.rv_genre) RecyclerView genreRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +94,16 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
 
         ButterKnife.bind(this);
+
+        ChipsLayoutManager genreLayoutManager = ChipsLayoutManager.newBuilder(this)
+                .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT).withLastRow(true)
+                .setOrientation(ChipsLayoutManager.HORIZONTAL)
+                .build();
+        genreRecyclerView.setLayoutManager(genreLayoutManager);
+        genreRecyclerView.addItemDecoration(new SpacingItemDecoration(getResources().getDimensionPixelOffset(R.dimen.item_spacing),
+                getResources().getDimensionPixelOffset(R.dimen.item_spacing)));
+        genreAdapter = new GenreAdapter();
+        genreRecyclerView.setAdapter(genreAdapter);
 
         LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
         reviewRecyclerView.setLayoutManager(reviewLayoutManager);
@@ -211,15 +228,17 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
         titleTextView.setText(movieDetails.getTitle());
         overviewTextView.setText(movieDetails.getOverview());
-        userRatingTextView.setText(getString(R.string.user_rating_value, movieDetails.getUserRating()));
+        userRatingTextView.setText(movieDetails.getUserRating());
+//        ratingBar.setRating(Float.valueOf(movieDetails.getUserRating())/2);
         Log.e(this.getClass().getSimpleName(), movieDetails.getReleaseDate());
         releaseDateTextView.setText(Movie.convertDateString(movieDetails.getReleaseDate()));
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
 
         ArrayList<String> genres = movieDetails.getGenres();
-        for (String genre : genres) {
-            genreTextView.append(genre + " ");
-        }
+        genreAdapter.setGenres(genres);
+//        for (String genre : genres) {
+//            genreTextView.append(genre + " ");
+//        }
         reviewsAdapter.setReviews(movieDetails.getReviews());
         trailersAdapter.setTrailerKeys(movieDetails.getVideoKeys());
     }
