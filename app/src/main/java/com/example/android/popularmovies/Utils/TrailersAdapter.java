@@ -1,34 +1,42 @@
 package com.example.android.popularmovies.Utils;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.media.Image;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.ImageViewCompat;
-import android.support.v7.content.res.AppCompatResources;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popularmovies.Data.Trailer;
+import com.example.android.popularmovies.DetailActivity;
 import com.example.android.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.TrailerViewHolder> {
 
-    ArrayList<String> trailerKeys;
+    private Activity activity;
+    ArrayList<Trailer> trailers;
     final private TrailerClickListener trailerClickListener;
 
     public interface TrailerClickListener {
         void onClick(String movieKey);
     }
 
-    public TrailersAdapter(TrailerClickListener trailerClickListener) {
+    public TrailersAdapter(Activity activity, TrailerClickListener trailerClickListener) {
+        this.activity = activity;
         this.trailerClickListener = trailerClickListener;
     }
 
@@ -41,51 +49,84 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TrailerViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final TrailerViewHolder holder, final int position) {
         holder.bind(position);
+        holder.shareIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu menu = new PopupMenu(activity, view, Gravity.RIGHT);
+                MenuInflater inflater = menu.getMenuInflater();
+                inflater.inflate(R.menu.trailer_overflow, menu.getMenu());
+                menu.show();
+
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        int id = menuItem.getItemId();
+                        if (id == R.id.action_share) {
+                            Trailer selectedTrailer = trailers.get(position);
+                            String mimeType  = "text/plain";
+                            String title = "Share a link";
+                            String linkToShare = "Watch \"" + selectedTrailer.getTitle() + "\" on Youtube\n\n" +
+                                    DetailActivity.YOUTUBE_BASE_URL + selectedTrailer.getVideoKey();
+                            ShareCompat.IntentBuilder.from(activity)
+                                    .setChooserTitle(title)
+                                    .setType(mimeType)
+                                    .setText(linkToShare)
+                                    .startChooser();
+                        }
+                        return false;
+                    }
+                });
+            }
+        });
     }
+
+
 
     @Override
     public int getItemCount() {
-        if (trailerKeys == null) return 0;
-        return trailerKeys.size();
+        if (trailers == null) return 0;
+        return trailers.size();
     }
 
     public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView trailerImageView;
-        ImageView playIconImageView;
+        TextView videoTitleTextView;
+        TextView videoTypeTextView;
+        ImageView shareIcon;
         Context context;
 
-        public TrailerViewHolder(View itemView, Context context) {
+        public TrailerViewHolder(View itemView, final Context context) {
             super(itemView);
             trailerImageView = (ImageView) itemView.findViewById(R.id.iv_detail_trailer);
-            playIconImageView = itemView.findViewById(R.id.iv_play_icon);
+            videoTitleTextView = itemView.findViewById(R.id.tv_video_title);
+            videoTypeTextView = itemView.findViewById(R.id.tv_video_type);
+            shareIcon = itemView.findViewById(R.id.share_icon);
+
             this.context = context;
             itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
             String trailerThumbnailUrl = context.getString(R.string.youtube_thumbanil_path,
-                    trailerKeys.get(listIndex));
+                    trailers.get(listIndex).getVideoKey());
             Picasso.get().load(trailerThumbnailUrl).centerCrop().fit().into(trailerImageView);
+            videoTitleTextView.setText(trailers.get(listIndex).getTitle());
+            videoTypeTextView.setText(trailers.get(listIndex).getType());
         }
 
         @Override
         public void onClick(View view) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                playIconImageView.setImageTintList(context.getColorStateList(R.color.colorAccent));
-            } else {
-                ColorStateList csl = AppCompatResources.getColorStateList(context, R.color.colorAccent);
-                ImageViewCompat.setImageTintList(playIconImageView, csl);
-            }
             int position = getAdapterPosition();
-            trailerClickListener.onClick(trailerKeys.get(position));
+            trailerClickListener.onClick(trailers.get(position).getVideoKey());
         }
     }
 
-    public void setTrailerKeys(ArrayList<String> trailerKeys) {
-        this.trailerKeys = trailerKeys;
+    public void setTrailers(ArrayList<Trailer> trailers) {
+        this.trailers = trailers;
         notifyDataSetChanged();
     }
+
 }

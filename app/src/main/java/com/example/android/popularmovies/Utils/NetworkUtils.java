@@ -7,6 +7,7 @@ import com.example.android.popularmovies.BuildConfig;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Data.Review;
+import com.example.android.popularmovies.Data.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +50,7 @@ public class NetworkUtils {
 
     private static final String KEY_VIDEOS = "videos";
     private static final String KEY_VIDEO_KEY = "key";
+    private static final String KEY_VIDEO_TYPE = "type";
 
 
     private static final String KEY_REVIEWS = "reviews";
@@ -167,12 +169,15 @@ public class NetworkUtils {
 //            String profilePath = cast.getString(KEY_PROFILE_PATH);
 //        }
 
-        ArrayList<String> videoKeys = new ArrayList<>();
+        ArrayList<Trailer> trailers = new ArrayList<>();
         JSONObject videosList = root.getJSONObject(KEY_VIDEOS);
         JSONArray videoResults = videosList.getJSONArray(KEY_RESULTS);
         for (int i = 0; i < videoResults.length(); i++) {
-            JSONObject videoKey = videoResults.getJSONObject(i);
-            videoKeys.add(videoKey.getString(KEY_VIDEO_KEY));
+            JSONObject video = videoResults.getJSONObject(i);
+            String videoKey = video.getString(KEY_VIDEO_KEY);
+            String videoTitle = video.getString(KEY_NAME);
+            String videoType = video.getString(KEY_VIDEO_TYPE);
+            trailers.add(new Trailer(videoKey, videoTitle, videoType));
         }
 
         JSONObject reviewsList = root.getJSONObject(KEY_REVIEWS);
@@ -185,7 +190,7 @@ public class NetworkUtils {
             reviews.add(new Review(author, content));
         }
         return new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
-                reviews, videoKeys);
+                reviews, trailers);
     }
 
     /**

@@ -1,17 +1,15 @@
 package com.example.android.popularmovies;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,7 +19,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
@@ -38,7 +35,6 @@ import com.squareup.picasso.Picasso;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,7 +44,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private static final String KEY_PARCEL = "selected_movie";
     private static final String BACKDROP_BASE_PATH = "http://image.tmdb.org/t/p/w500";
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
-    private static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
+    public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
     private Movie mMovie;
     private int movieId;
@@ -111,12 +107,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         reviewsAdapter = new ReviewsAdapter();
         reviewRecyclerView.setAdapter(reviewsAdapter);
 
-        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this,
-                LinearLayoutManager.HORIZONTAL,
-                false);
+        LinearLayoutManager trailerLayoutManager = new LinearLayoutManager(this);
         trailerRecyclerView.setLayoutManager(trailerLayoutManager);
         trailerRecyclerView.setHasFixedSize(true);
-        trailersAdapter = new TrailersAdapter(this);
+        trailersAdapter = new TrailersAdapter(this, this);
         trailerRecyclerView.setAdapter(trailersAdapter);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
@@ -237,6 +231,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         ArrayList<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
         reviewsAdapter.setReviews(movieDetails.getReviews());
-        trailersAdapter.setTrailerKeys(movieDetails.getVideoKeys());
+        trailersAdapter.setTrailers(movieDetails.getTrailers());
     }
+
 }
