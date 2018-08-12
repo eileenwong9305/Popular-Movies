@@ -34,8 +34,8 @@ public class Movie {
 
     @Ignore
     private ArrayList<String> genres;
-    @Ignore
     private String runtime;
+    private String language;
     @Ignore
     private ArrayList<Review> reviews;
     @Ignore
@@ -43,7 +43,7 @@ public class Movie {
 
 
     public Movie(int id, String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId) {
+                 String releaseDate, String backdrop, int movieId, String runtime, String language) {
         this.id = id;
         this.title = title;
         this.poster = poster;
@@ -52,12 +52,15 @@ public class Movie {
         this.releaseDate = releaseDate;
         this.backdrop = backdrop;
         this.movieId = movieId;
+        this.runtime = runtime;
+        this.language = language;
+
     }
 
     @Ignore
     public Movie(String title, String poster, String overview, String userRating,
                  String releaseDate, String backdrop, int movieId, ArrayList<String> genres, String runtime,
-                 ArrayList<Review> reviews, ArrayList<String> videoKeys) {
+                 String language, ArrayList<Review> reviews, ArrayList<String> videoKeys) {
         this.title = title;
         this.poster = poster;
         this.overview = overview;
@@ -67,6 +70,7 @@ public class Movie {
         this.movieId = movieId;
         this.genres = genres;
         this.runtime = runtime;
+        this.language = language;
         this.reviews = reviews;
         this.videoKeys = videoKeys;
     }
@@ -157,6 +161,10 @@ public class Movie {
 
     public String getRuntime() {
         return runtime;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public ArrayList<Review> getReviews() {

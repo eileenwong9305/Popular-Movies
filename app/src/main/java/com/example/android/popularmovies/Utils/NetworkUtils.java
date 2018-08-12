@@ -41,6 +41,7 @@ public class NetworkUtils {
     private static final String KEY_GENRES = "genres";
     private static final String KEY_NAME = "name";
     private static final String KEY_RUNTIME = "runtime";
+    private static final String KEY_ORIGINAL_LANGUAGE = "original_language";
     private static final String KEY_CREDITS = "credits";
     private static final String KEY_CASTS = "cast";
     private static final String KEY_CHARACTER = "character";
@@ -134,8 +135,14 @@ public class NetworkUtils {
         String poster = root.getString(KEY_POSTER_PATH);
         String backdrop = root.getString(KEY_BACKDROP);
         String releaseDate = root.getString(KEY_RELEASE_DATE);
+        if (releaseDate.equals("null")) {
+            releaseDate = "TBD";
+        } else {
+            releaseDate = Movie.convertDateString(releaseDate);
+        }
         String overview = root.getString(KEY_OVERVIEW);
         String userRating = root.getString(KEY_USER_RATING);
+        String language = root.getString(KEY_ORIGINAL_LANGUAGE);
         int movieId = root.getInt(KEY_MOVIE_ID);
 
         JSONArray genreList = root.getJSONArray(KEY_GENRES);
@@ -148,6 +155,8 @@ public class NetworkUtils {
         }
 
         String runtime = root.getString(KEY_RUNTIME);
+        Log.e("RUNTIME", runtime);
+        if (runtime.equals("null")) runtime = "-";
 
 //        JSONObject credits = root.getJSONObject(KEY_CREDITS);
 //        JSONArray castList = credits.getJSONArray(KEY_CASTS);
@@ -175,7 +184,7 @@ public class NetworkUtils {
             String content = review.getString(KEY_REVIEW_CONTENT);
             reviews.add(new Review(author, content));
         }
-        return new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime,
+        return new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
                 reviews, videoKeys);
     }
 

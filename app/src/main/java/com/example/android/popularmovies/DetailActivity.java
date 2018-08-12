@@ -66,7 +66,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.tv_detail_overview) TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
     @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
-//    @BindView(R.id.tv_detail_genre) TextView genreTextView;
+    @BindView(R.id.tv_detail_language) TextView languageTextView;
     @BindView(R.id.tv_detail_runtime) TextView runtimeTextView;
     @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
     @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
@@ -231,14 +231,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         userRatingTextView.setText(movieDetails.getUserRating());
 //        ratingBar.setRating(Float.valueOf(movieDetails.getUserRating())/2);
         Log.e(this.getClass().getSimpleName(), movieDetails.getReleaseDate());
-        releaseDateTextView.setText(Movie.convertDateString(movieDetails.getReleaseDate()));
+        releaseDateTextView.setText(movieDetails.getReleaseDate());
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
-
+        languageTextView.setText(movieDetails.getLanguage());
         ArrayList<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
-//        for (String genre : genres) {
-//            genreTextView.append(genre + " ");
-//        }
         reviewsAdapter.setReviews(movieDetails.getReviews());
         trailersAdapter.setTrailerKeys(movieDetails.getVideoKeys());
     }

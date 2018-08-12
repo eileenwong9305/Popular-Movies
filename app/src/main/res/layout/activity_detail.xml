@@ -144,6 +144,17 @@
                 app:layout_constraintTop_toBottomOf="@+id/rv_genre"
                 tools:layout_editor_absoluteY="498dp" />
 
+            <TextView
+                android:id="@+id/tv_detail_language"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:textAllCaps="true"
+                app:layout_constraintBaseline_toBaselineOf="@+id/language_label"
+                app:layout_constraintStart_toEndOf="@+id/barrier3"
+                tools:text="English" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_genre"
                 android:layout_width="0dp"
