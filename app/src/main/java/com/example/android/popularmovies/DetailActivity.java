@@ -6,6 +6,7 @@ import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
@@ -15,7 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -58,7 +61,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
     @BindView(R.id.iv_detail_poster) ImageView posterImageView;
-    @BindView(R.id.tv_detail_title) TextView titleTextView;
+//    @BindView(R.id.tv_detail_title) TextView titleTextView;
     @BindView(R.id.tv_detail_overview) TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
     @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
@@ -69,11 +72,15 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.fab) FloatingActionButton fab;
 //    @BindView(R.id.rating_bar) RatingBar ratingBar;
     @BindView(R.id.rv_genre) RecyclerView genreRecyclerView;
+    @BindView(R.id.collapsing_toolbar_layout) CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.collapsing_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDb = FavouriteDatabase.getInstance(getApplicationContext());
 
@@ -211,6 +218,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
     private void showMovieDetails(Movie movieDetails) {
+        collapsingToolbarLayout.setTitle(movieDetails.getTitle());
         String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
         Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
 
@@ -220,7 +228,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
             Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
         }
-        titleTextView.setText(movieDetails.getTitle());
+//        titleTextView.setText(movieDetails.getTitle());
         overviewTextView.setText(movieDetails.getOverview());
         userRatingTextView.setText(movieDetails.getUserRating());
 //        ratingBar.setRating(Float.valueOf(movieDetails.getUserRating())/2);

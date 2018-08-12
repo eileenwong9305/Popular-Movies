@@ -43,9 +43,10 @@
         <!--<item name="background">@drawable/action_bar_background</item>-->
     <!--</style>-->
 
-    <style name="DetailActivityTheme" parent="@style/AppTheme">
-        <item name="actionBarStyle">@style/DetailActionBar</item>
-        <item name="windowActionBarOverlay">true</item>
+    <style name="DetailActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="DetailActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">

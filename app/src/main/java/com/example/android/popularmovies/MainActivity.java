@@ -6,6 +6,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -61,8 +62,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-
-        GridLayoutManager layoutManager = new GridLayoutManager(this, SPAN_COUNT);
+        GridLayoutManager layoutManager;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layoutManager = new GridLayoutManager(this, 2);
+        } else {
+            layoutManager = new GridLayoutManager(this, 4);
+        }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new MoviesAdapter(this);
