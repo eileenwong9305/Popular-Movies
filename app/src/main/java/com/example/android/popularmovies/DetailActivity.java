@@ -13,6 +13,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -61,7 +62,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
     @BindView(R.id.iv_detail_poster) ImageView posterImageView;
-//    @BindView(R.id.tv_detail_title) TextView titleTextView;
     @BindView(R.id.tv_detail_overview) TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
     @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
@@ -70,8 +70,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
     @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
     @BindView(R.id.fab) FloatingActionButton fab;
-//    @BindView(R.id.rating_bar) RatingBar ratingBar;
     @BindView(R.id.rv_genre) RecyclerView genreRecyclerView;
+    @BindView(R.id.cardview_trailer) CardView trailerCardView;
+    @BindView(R.id.cardview_reviews) CardView reviewCardView;
     @BindView(R.id.collapsing_toolbar_layout) CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
@@ -238,8 +239,18 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         languageTextView.setText(movieDetails.getLanguage());
         ArrayList<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
-        reviewsAdapter.setReviews(movieDetails.getReviews());
-        trailersAdapter.setTrailers(movieDetails.getTrailers());
+        if (movieDetails.getReviews().size() == 0) {
+            reviewCardView.setVisibility(View.GONE);
+        } else {
+            reviewCardView.setVisibility(View.VISIBLE);
+            reviewsAdapter.setReviews(movieDetails.getReviews());
+        }
+        if (movieDetails.getTrailers().size() == 0) {
+            trailerCardView.setVisibility(View.GONE);
+        } else {
+            trailerCardView.setVisibility(View.VISIBLE);
+            trailersAdapter.setTrailers(movieDetails.getTrailers());
+        }
     }
 
 }
