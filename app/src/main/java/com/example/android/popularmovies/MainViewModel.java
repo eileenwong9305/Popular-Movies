@@ -24,9 +24,9 @@ public class MainViewModel extends ViewModel {
         this.repository = repository;
     }
 
-    public LiveData<List<MovieList>> getMovies(String sortOrder) {
-        return repository.getMovieData(sortOrder);
-    }
+//    public LiveData<List<MovieList>> getMovies(String sortOrder) {
+////        return repository.getMovieData(sortOrder);
+////    }
 
     public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
         return repository.getOtherMovieData(sortOrder);

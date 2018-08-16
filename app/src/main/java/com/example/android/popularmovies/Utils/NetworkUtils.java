@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.android.popularmovies.BuildConfig;
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Data.Review;
@@ -43,10 +44,6 @@ public class NetworkUtils {
     private static final String KEY_NAME = "name";
     private static final String KEY_RUNTIME = "runtime";
     private static final String KEY_ORIGINAL_LANGUAGE = "original_language";
-    private static final String KEY_CREDITS = "credits";
-    private static final String KEY_CASTS = "cast";
-    private static final String KEY_CHARACTER = "character";
-    private static final String KEY_PROFILE_PATH = "profile_path";
 
     private static final String KEY_VIDEOS = "videos";
     private static final String KEY_VIDEO_KEY = "key";
@@ -63,11 +60,8 @@ public class NetworkUtils {
     private static final String RESPOND_PARAM = "append_to_response";
     private static final String DEFAULT_SORT_BY_PATH = "popular";
     private static final String RESPOND_VALUE = "videos";
-    private static final String RESPOND_ADD_VALUE = ",images,credits,reviews";
+    private static final String RESPOND_ADD_VALUE = ",reviews";
 
-    /*
-        TODO: Replace [YOUR_API_KEY] with your API key requested from TheMovieDB website
-     */
     private static final String API_KEY = BuildConfig.API_KEY;
 
     /**
@@ -112,24 +106,24 @@ public class NetworkUtils {
      * @return List of Movie object
      * @throws JSONException if JSON cannot be properly parsed
      */
-    public static List<MovieList> parseMovieJson(String json) throws JSONException {
+    public static List<Movie> parseMovieJson(String json) throws JSONException {
 
         JSONObject root = new JSONObject(json);
         JSONArray results = root.getJSONArray(KEY_RESULTS);
 
-        List<MovieList> movies = new ArrayList<>();
+        List<Movie> movies = new ArrayList<>();
 
         for (int i = 0; i < results.length(); i++) {
             JSONObject result = results.getJSONObject(i);
             String title = result.getString(KEY_TITLE);
             String poster = result.getString(KEY_POSTER_PATH);
             int movieId = result.getInt(KEY_MOVIE_ID);
-            movies.add(new MovieList(title, poster, movieId));
+            movies.add(new Movie(title, poster, movieId));
         }
         return movies;
     }
 
-    public static Movie parseMovieDetailJson(String json) throws JSONException {
+    public static FavouriteMovie parseMovieDetailJson(String json) throws JSONException {
 
         JSONObject root = new JSONObject(json);
 
@@ -140,7 +134,7 @@ public class NetworkUtils {
         if (releaseDate.equals("null")) {
             releaseDate = "TBD";
         } else {
-            releaseDate = Movie.convertDateString(releaseDate);
+            releaseDate = FavouriteMovie.convertDateString(releaseDate);
         }
         String overview = root.getString(KEY_OVERVIEW);
         String userRating = root.getString(KEY_USER_RATING);
@@ -157,17 +151,7 @@ public class NetworkUtils {
         }
 
         String runtime = root.getString(KEY_RUNTIME);
-        Log.e("RUNTIME", runtime);
         if (runtime.equals("null")) runtime = "-";
-
-//        JSONObject credits = root.getJSONObject(KEY_CREDITS);
-//        JSONArray castList = credits.getJSONArray(KEY_CASTS);
-//        for (int i = 0; i < castList.length(); i++) {
-//            JSONObject cast = castList.getJSONObject(i);
-//            String character = cast.getString(KEY_CHARACTER);
-//            String actor = cast.getString(KEY_NAME);
-//            String profilePath = cast.getString(KEY_PROFILE_PATH);
-//        }
 
         ArrayList<Trailer> trailers = new ArrayList<>();
         JSONObject videosList = root.getJSONObject(KEY_VIDEOS);
@@ -189,7 +173,7 @@ public class NetworkUtils {
             String content = review.getString(KEY_REVIEW_CONTENT);
             reviews.add(new Review(author, content));
         }
-        return new Movie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
+        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
                 reviews, trailers);
     }
 

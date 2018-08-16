@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class DetailViewModel extends ViewModel {
     public boolean containMovieId(int movieId) {
         return repository.containMovieId(movieId);
     }
-    public void insertFavourite(Movie movie) {
+    public void insertFavourite(FavouriteMovie movie) {
         repository.insertFavourite(movie);
     }
 

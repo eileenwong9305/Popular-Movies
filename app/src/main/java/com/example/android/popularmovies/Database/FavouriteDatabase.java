@@ -6,14 +6,15 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 
-@Database(entities = {Movie.class}, version = 1, exportSchema = false)
+@Database(entities = {FavouriteMovie.class, Movie.class}, version = 1, exportSchema = false)
 public abstract class FavouriteDatabase extends RoomDatabase {
 
     private static final String LOG_TAG = FavouriteDatabase.class.getSimpleName();
     private static final Object LOCK = new Object();
-    private static final String DATABASE_NAME = "favourite";
+    private static final String DATABASE_NAME = "movies";
     private static FavouriteDatabase sInstance;
     public static FavouriteDatabase getInstance(Context context) {
         if (sInstance == null) {

@@ -1,8 +1,11 @@
 package com.example.android.popularmovies;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Database.MovieDao;
@@ -26,6 +29,21 @@ public class MovieRepository {
         movieDao = dao;
         movieNetworkDataSource = networkDataSource;
         appExecutor = executor;
+        LiveData<List<Movie>> currentMovies = movieNetworkDataSource.getMovieData();
+        currentMovies.observeForever(new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable final List<Movie> movieLists) {
+                appExecutor.diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        movieDao.deleteOldData();
+                        if (movieLists != null) {
+                            movieDao.bulkInsert(movieLists);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     public synchronized static MovieRepository getInstance(MovieDao dao,
@@ -39,31 +57,30 @@ public class MovieRepository {
         return sInstance;
     }
 
-    public LiveData<List<MovieList>> getMovieData(String sortOrder) {
-        if (sortOrder.equals(FAVOURITE_DATABASE_VALUE)) {
-            return movieDao.loadAllFavouritesList();
-        } else {
-            movieNetworkDataSource.fetchMovie(sortOrder);
-            return movieNetworkDataSource.getMovieData();
-        }
-    }
+//    public LiveData<List<MovieList>> getMovieData(String sortOrder) {
+//        if (sortOrder.equals(FAVOURITE_DATABASE_VALUE)) {
+//            return movieDao.loadAllFavouriteMovies();
+//        } else {
+//            movieNetworkDataSource.fetchMovie(sortOrder);
+//            return movieNetworkDataSource.getMovieData();
+//        }
+//    }
 
     public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
         movieNetworkDataSource.fetchMovie(sortOrder);
-        return movieNetworkDataSource.getMovieData();
+        return movieDao.loadAllCurrentMovies();
     }
 
     public LiveData<List<MovieList>> getFavouriteMovieData() {
-        return movieDao.loadAllFavouritesList();
+        return movieDao.loadAllFavouriteMovies();
     }
 
     public boolean containMovieId(int movieId){
         int value = movieDao.getCountByMovieId(movieId);
-        Log.e("REPO", String.valueOf(value));
         return movieDao.getCountByMovieId(movieId) > 0;
     }
 
-    public void insertFavourite(final Movie movie) {
+    public void insertFavourite(final FavouriteMovie movie) {
         appExecutor.diskIO().execute(new Runnable() {
             @Override
             public void run() {

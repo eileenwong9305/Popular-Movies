@@ -17,7 +17,7 @@ public class MovieNetworkDataSource {
     private static MovieNetworkDataSource sInstance;
     private final AppExecutor appExecutor;
 
-    private final MutableLiveData<List<MovieList>> downloadedMovieData;
+    private final MutableLiveData<List<Movie>> downloadedMovieData;
 
     private MovieNetworkDataSource (AppExecutor appExecutor) {
         this.appExecutor = appExecutor;
@@ -41,7 +41,7 @@ public class MovieNetworkDataSource {
                     try {
                         URL queryUrl = NetworkUtils.buildUrl(sortOrder);
                         String json = NetworkUtils.getResponseFromHttp(queryUrl);
-                        List<MovieList> movies = NetworkUtils.parseMovieJson(json);
+                        List<Movie> movies = NetworkUtils.parseMovieJson(json);
                         if (movies != null) {
                             downloadedMovieData.postValue(movies);
                         }
@@ -55,11 +55,11 @@ public class MovieNetworkDataSource {
         });
     }
 
-    public LiveData<List<MovieList>> getMovieData() {
+    public LiveData<List<Movie>> getMovieData() {
         return downloadedMovieData;
     }
 
-    public MutableLiveData<List<MovieList>> getDownloadedMovieData() {
+    public MutableLiveData<List<Movie>> getDownloadedMovieData() {
         return downloadedMovieData;
     }
 }

@@ -76,36 +76,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         adapter = new MoviesAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        showOnlyLoading();
-//
-//        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-//        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        String sortOrder = getSortPreferenceValue(getString(R.string.pref_sort_key));
+
+
         MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
-
-//        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PARCEL_MOVIE_LIST)) {
-////            movieList = savedInstanceState.getParcelableArrayList(KEY_PARCEL_MOVIE_LIST);
-////            adapter.setMovies(movieList);
-////        } else {
-////            populateUI();
-////        }
-
+        String sortOrder = getSortPreferenceValue(getString(R.string.pref_sort_key));
         loadMovies(sortOrder);
 
     }
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        outState.putParcelableArrayList(KEY_PARCEL_MOVIE_LIST, movieList);
-//        super.onSaveInstanceState(outState);
-//    }
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
-//    }
 
     @Override
     public void onClick(MovieList movie) {
@@ -124,7 +102,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-//            loadMovies(mSharedPreferences);
+            String sortOrder = getSortPreferenceValue(getString(R.string.pref_sort_key));
+            loadMovies(sortOrder);
             return true;
         } else if (id == R.id.action_sort) {
             final String sortKey = getString(R.string.pref_sort_key);
@@ -175,9 +154,25 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    private void loadMovies(String sortOrder) {
+    private void loadMovies(final String sortOrder) {
+        showOnlyLoading();
         if(sortOrder.equals(getString(R.string.pref_sort_favourites))) {
             viewModel.getFavouriteMovieData().observe(this, new Observer<List<MovieList>>() {
+                @Override
+                public void onChanged(@Nullable List<MovieList> movieLists) {
+                    String currentSort = getSortPreferenceValue(getString(R.string.pref_sort_key));
+                    if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
+                        adapter.setMovies(movieLists);
+                        if (movieLists != null && movieLists.size() != 0) {
+                            showMovieData();
+                        } else {
+                            showErrorMessage();
+                        }
+                    }
+                }
+            });
+        } else {
+            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<MovieList>>() {
                 @Override
                 public void onChanged(@Nullable List<MovieList> movieLists) {
                     adapter.setMovies(movieLists);
@@ -189,17 +184,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                 }
             });
         }
-        viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<MovieList>>() {
-            @Override
-            public void onChanged(@Nullable List<MovieList> movieLists) {
-                adapter.setMovies(movieLists);
-                if (movieLists != null && movieLists.size() != 0) {
-                    showMovieData();
-                } else {
-                    showErrorMessage();
-                }
-            }
-        });
     }
 
     private void setSharedPreference(String key, String value) {
@@ -213,10 +197,4 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         SharedPreferences sortPreference = getSharedPreferences(getString(R.string.preference_key_file), Context.MODE_PRIVATE);
         return sortPreference.getString(key, getString(R.string.pref_sort_default));
     }
-
-    private String getSortPreferenceInt(String key) {
-        SharedPreferences sortPreference = getSharedPreferences(getString(R.string.preference_key_file), Context.MODE_PRIVATE);
-        return sortPreference.getString(key, getString(R.string.pref_sort_default));
-    }
-
 }

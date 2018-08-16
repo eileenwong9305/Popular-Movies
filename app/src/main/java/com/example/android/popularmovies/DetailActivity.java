@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
@@ -50,7 +51,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
-    private Movie mMovie;
+    private FavouriteMovie mMovie;
     private int movieId;
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
@@ -192,10 +193,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
 
-    public class FetchMovieDetailTask extends AsyncTask<URL, Void, Movie> {
+    public class FetchMovieDetailTask extends AsyncTask<URL, Void, FavouriteMovie> {
 
         @Override
-        protected Movie doInBackground(URL... urls) {
+        protected FavouriteMovie doInBackground(URL... urls) {
             if (urls.length == 0) return null;
             URL url = urls[0];
             if (NetworkUtils.isOnline()){
@@ -210,7 +211,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
 
         @Override
-        protected void onPostExecute(Movie movie) {
+        protected void onPostExecute(FavouriteMovie movie) {
             mMovie = movie;
             if (movie != null) {
                 showMovieDetails(movie);
@@ -218,7 +219,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
     }
 
-    private void showMovieDetails(Movie movieDetails) {
+    private void showMovieDetails(FavouriteMovie movieDetails) {
         collapsingToolbarLayout.setTitle(movieDetails.getTitle());
         String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
         Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
@@ -229,11 +230,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
             Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
         }
-//        titleTextView.setText(movieDetails.getTitle());
         overviewTextView.setText(movieDetails.getOverview());
         userRatingTextView.setText(movieDetails.getUserRating());
-//        ratingBar.setRating(Float.valueOf(movieDetails.getUserRating())/2);
-        Log.e(this.getClass().getSimpleName(), movieDetails.getReleaseDate());
         releaseDateTextView.setText(movieDetails.getReleaseDate());
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
         languageTextView.setText(movieDetails.getLanguage());
@@ -253,4 +251,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 }
