@@ -8,24 +8,10 @@
         android:title="@string/release_date"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_setting"
-        android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/action_setting"
-        android:orderInCategory="2"
+        android:id="@+id/action_sort"
+        android:title="@string/pref_sort_label"
+        android:icon="@drawable/ic_sort_black_24dp"
+        android:orderInCategory="3"
         app:showAsAction="always"/>
 
-    <group
-        android:id="@+id/sort_by"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/sort_by_popularity"
-            android:checked="true"
-            android:title="@string/most_popular" />
-        <item
-            android:id="@+id/sort_by_top_rated"
-            android:title="@string/highest_rated" />
-        <item
-            android:id="@+id/sort_by_favourite"
-            android:title="@string/favourite"/>
-    </group>
 </menu>

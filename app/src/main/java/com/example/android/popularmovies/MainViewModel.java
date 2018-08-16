@@ -28,4 +28,11 @@ public class MainViewModel extends ViewModel {
         return repository.getMovieData(sortOrder);
     }
 
+    public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
+        return repository.getOtherMovieData(sortOrder);
+    }
+
+    public LiveData<List<MovieList>> getFavouriteMovieData() {
+        return repository.getFavouriteMovieData();
+    }
 }
