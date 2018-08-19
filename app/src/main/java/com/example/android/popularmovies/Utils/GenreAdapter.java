@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHolder>{
 
-    private ArrayList<String> genres;
+    private List<String> genres;
 
 
     @NonNull
@@ -51,7 +51,7 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHol
         }
     }
 
-    public void setGenres (ArrayList<String> genres) {
+    public void setGenres (List<String> genres) {
         this.genres = genres;
         notifyDataSetChanged();
     }

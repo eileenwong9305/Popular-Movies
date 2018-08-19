@@ -56,6 +56,23 @@ public class FavouriteMovie {
 
     @Ignore
     public FavouriteMovie(String title, String poster, String overview, String userRating,
+                          String releaseDate, String backdrop, int movieId, ArrayList<String> genres,
+                          String runtime, String language) {
+        this.title = title;
+        this.poster = poster;
+        this.overview = overview;
+        this.userRating = userRating;
+        this.releaseDate = releaseDate;
+        this.backdrop = backdrop;
+        this.movieId = movieId;
+        this.genres = genres;
+        this.runtime = runtime;
+        this.language = language;
+
+    }
+
+    @Ignore
+    public FavouriteMovie(String title, String poster, String overview, String userRating,
                  String releaseDate, String backdrop, int movieId, ArrayList<String> genres, String runtime,
                  String language, ArrayList<Review> reviews, ArrayList<Trailer> trailers) {
         this.title = title;

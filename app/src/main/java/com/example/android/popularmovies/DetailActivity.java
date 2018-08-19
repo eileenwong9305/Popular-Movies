@@ -1,16 +1,16 @@
 package com.example.android.popularmovies;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
-import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +20,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,18 +29,18 @@ import android.widget.TextView;
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
 import com.example.android.popularmovies.Data.FavouriteMovie;
-import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.Review;
+import com.example.android.popularmovies.Data.Trailer;
 import com.example.android.popularmovies.Database.FavouriteDatabase;
 import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.GenreAdapter;
 import com.example.android.popularmovies.Utils.InjectorUtils;
-import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.ReviewsAdapter;
 import com.example.android.popularmovies.Utils.TrailersAdapter;
 import com.squareup.picasso.Picasso;
 
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,7 +52,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
-    private FavouriteMovie mMovie;
+    private FavouriteMovie movieDetails;
+    private List<Review> movieReviews;
+    private List<Trailer> movieTrailers;
     private int movieId;
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
@@ -133,16 +134,16 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
 
-        new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movieId));
+//        new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movieId));
 
         showOnlyLoading();
         DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
 
-//        mMovie = viewModel.getMovieDetail(movieId).getValue();
-//        if (mMovie != null) {
+//        movieDetails = viewModel.getMovieDetail(movieId).getValue();
+//        if (movieDetails != null) {
 //            showMovieData();
-//            showMovieDetails(mMovie);
+//            showMovieDetails(movieDetails);
 //        } else {
 //            showErrorMessage();
 //        }
@@ -154,6 +155,38 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                     addToFavourite = true;
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
+            }
+        });
+
+        viewModel.getMovieDetail(movieId).observe(this, new Observer<FavouriteMovie>() {
+            @Override
+            public void onChanged(@Nullable FavouriteMovie favouriteMovie) {
+                Log.e(getClass().getSimpleName(), "get movie detail");
+                if (favouriteMovie != null) {
+                    Log.e(getClass().getSimpleName(), "load movie detail");
+                    showMovieData();
+                    showMovieDetails(favouriteMovie);
+                    movieDetails = favouriteMovie;
+                } else {
+                    Log.e(getClass().getSimpleName(), "error");
+                    showErrorMessage();
+                }
+            }
+        });
+
+        viewModel.getMovieReview().observe(this, new Observer<List<Review>>() {
+            @Override
+            public void onChanged(@Nullable List<Review> reviews) {
+                movieReviews = reviews;
+                showMovieReview(reviews);
+            }
+        });
+
+        viewModel.getMovieVideo().observe(this, new Observer<List<Trailer>>() {
+            @Override
+            public void onChanged(@Nullable List<Trailer> trailers) {
+                movieTrailers = trailers;
+                showMovieVideo(trailers);
             }
         });
 
@@ -169,7 +202,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                             .setAction("Action", null).show();
                 } else {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    viewModel.insertFavourite(mMovie);
+                    viewModel.insertFavourite(movieDetails, movieReviews, movieTrailers);
                     addToFavourite = true;
                     Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -200,37 +233,69 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
 
-    public class FetchMovieDetailTask extends AsyncTask<URL, Void, FavouriteMovie> {
+//    public class FetchMovieDetailTask extends AsyncTask<URL, Void, FavouriteMovie> {
+//
+//        @Override
+//        protected FavouriteMovie doInBackground(URL... urls) {
+//            if (urls.length == 0) return null;
+//            URL url = urls[0];
+//            if (NetworkUtils.isOnline()){
+//                try {
+//                    String json = NetworkUtils.getResponseFromHttp(url);
+//                    return NetworkUtils.parseMovieDetailJson(json);
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                }
+//            } else if (viewModel.containMovieId(movieId)) {
+//                Log.e("Contain", String.valueOf(movieId));
+//                return viewModel.getMovieDetail(movieId);
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(FavouriteMovie movie) {
+//            movieDetails = movie;
+//            if (movie != null) {
+//                showMovieData();
+//                showMovieDetails(movie);
+//            } else {
+//                showErrorMessage();
+//            }
+//        }
+//    }
 
-        @Override
-        protected FavouriteMovie doInBackground(URL... urls) {
-            if (urls.length == 0) return null;
-            URL url = urls[0];
-            if (NetworkUtils.isOnline()){
-                try {
-                    String json = NetworkUtils.getResponseFromHttp(url);
-                    return NetworkUtils.parseMovieDetailJson(json);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            } else if (viewModel.containMovieId(movieId)) {
-                Log.e("Contain", String.valueOf(movieId));
-                return viewModel.getMovieDetail(movieId);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(FavouriteMovie movie) {
-            mMovie = movie;
-            if (movie != null) {
-                showMovieData();
-                showMovieDetails(movie);
-            } else {
-                showErrorMessage();
-            }
-        }
-    }
+//    private void showMovieDetails(FavouriteMovie movieDetails) {
+//        collapsingToolbarLayout.setTitle(movieDetails.getTitle());
+//        String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
+//        Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
+//
+//        if (movieDetails.getPoster().equals("null")) {
+//            posterImageView.setImageResource(R.drawable.no_pic);
+//        } else {
+//            String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
+//            Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
+//        }
+//        overviewTextView.setText(movieDetails.getOverview());
+//        userRatingTextView.setText(movieDetails.getUserRating());
+//        releaseDateTextView.setText(movieDetails.getReleaseDate());
+//        runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
+//        languageTextView.setText(movieDetails.getLanguage());
+//        ArrayList<String> genres = movieDetails.getGenres();
+//        genreAdapter.setGenres(genres);
+//        if (movieDetails.getReviews() == null || movieDetails.getReviews().size() == 0) {
+//            reviewCardView.setVisibility(View.GONE);
+//        } else {
+//            reviewCardView.setVisibility(View.VISIBLE);
+//            reviewsAdapter.setReviews(movieDetails.getReviews());
+//        }
+//        if (movieDetails.getTrailers() == null || movieDetails.getTrailers().size() == 0) {
+//            trailerCardView.setVisibility(View.GONE);
+//        } else {
+//            trailerCardView.setVisibility(View.VISIBLE);
+//            trailersAdapter.setTrailers(movieDetails.getTrailers());
+//        }
+//    }
 
     private void showMovieDetails(FavouriteMovie movieDetails) {
         collapsingToolbarLayout.setTitle(movieDetails.getTitle());
@@ -250,17 +315,23 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         languageTextView.setText(movieDetails.getLanguage());
         ArrayList<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
-        if (movieDetails.getReviews() == null || movieDetails.getReviews().size() == 0) {
+    }
+
+    private void showMovieReview(List<Review> movieReviews) {
+        if (movieReviews == null || movieReviews.size() == 0) {
             reviewCardView.setVisibility(View.GONE);
         } else {
             reviewCardView.setVisibility(View.VISIBLE);
-            reviewsAdapter.setReviews(movieDetails.getReviews());
+            reviewsAdapter.setReviews(movieReviews);
         }
-        if (movieDetails.getTrailers() == null || movieDetails.getTrailers().size() == 0) {
+    }
+
+    private void showMovieVideo(List<Trailer> movieVideos) {
+        if (movieVideos == null || movieVideos.size() == 0) {
             trailerCardView.setVisibility(View.GONE);
         } else {
             trailerCardView.setVisibility(View.VISIBLE);
-            trailersAdapter.setTrailers(movieDetails.getTrailers());
+            trailersAdapter.setTrailers(movieVideos);
         }
     }
 

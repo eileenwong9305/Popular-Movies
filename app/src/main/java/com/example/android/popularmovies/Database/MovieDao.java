@@ -8,6 +8,8 @@ import android.arch.persistence.room.Query;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.Review;
+import com.example.android.popularmovies.Data.Trailer;
 
 import java.util.List;
 
@@ -32,6 +34,12 @@ public interface MovieDao {
     @Insert
     void insertFavourite(FavouriteMovie movie);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertReview(List<Review> reviews);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertTrailer(List<Trailer> trailers);
+
 //    @Delete
 //    void deleteFavourite(Movie movie);
 
@@ -40,6 +48,12 @@ public interface MovieDao {
 
     @Query("SELECT * FROM favourite_movie WHERE movie_id = :movieId")
     FavouriteMovie loadFavouriteByMovieId(int movieId);
+
+    @Query("SELECT * FROM trailer WHERE movie_id = :movieId")
+    List<Trailer> loadTrailerByMovieId(int movieId);
+
+    @Query("SELECT * FROM review WHERE movie_id = :movieId")
+    List<Review> loadReviewByMovieId(int movieId);
 
     @Query("SELECT COUNT(id) FROM favourite_movie WHERE movie_id = :movieId")
     int getCountByMovieId(int movieId);

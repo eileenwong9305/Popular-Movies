@@ -64,6 +64,10 @@ public class NetworkUtils {
     private static final String RESPOND_VALUE = "videos";
     private static final String RESPOND_ADD_VALUE = ",reviews";
 
+    public static final String DETAIL_PATH = "";
+    public static final String REVIEWS_PATH = "reviews";
+    public static final String VIDEOS_PATH = "videos";
+
     private static final String API_KEY = BuildConfig.API_KEY;
 
     /**
@@ -101,6 +105,29 @@ public class NetworkUtils {
         return url;
     }
 
+    public static URL buildUrl(int movieId, String type) {
+        Uri buildUri;
+        if (type.equals("")) {
+            buildUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendPath(String.valueOf(movieId))
+                    .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                    .build();
+        } else {
+            buildUri = Uri.parse(BASE_URL).buildUpon()
+                    .appendPath(String.valueOf(movieId))
+                    .appendPath(type)
+                    .appendQueryParameter(API_KEY_PARAM, API_KEY)
+                    .build();
+        }
+        URL url = null;
+        try {
+            url = new URL(buildUri.toString());
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return url;
+    }
+
     /**
      * Parses JSON from web response and return List of Movie objects
      *
@@ -125,25 +152,79 @@ public class NetworkUtils {
         return movies;
     }
 
+//    public static FavouriteMovie parseMovieDetailJson(String json) throws JSONException {
+//
+//        JSONObject detailRoot = new JSONObject(json);
+//
+//        String title = detailRoot.getString(KEY_TITLE);
+//        String poster = detailRoot.getString(KEY_POSTER_PATH);
+//        String backdrop = detailRoot.getString(KEY_BACKDROP);
+//        String releaseDate = detailRoot.getString(KEY_RELEASE_DATE);
+//        if (releaseDate.equals("null")) {
+//            releaseDate = "TBD";
+//        } else {
+//            releaseDate = FavouriteMovie.convertDateString(releaseDate);
+//        }
+//        String overview = detailRoot.getString(KEY_OVERVIEW);
+//        String userRating = detailRoot.getString(KEY_USER_RATING);
+//        String language = detailRoot.getString(KEY_ORIGINAL_LANGUAGE);
+//        int movieId = detailRoot.getInt(KEY_MOVIE_ID);
+//
+//        JSONArray genreList = detailRoot.getJSONArray(KEY_GENRES);
+//
+//        ArrayList<String> genres = new ArrayList<>();
+//        for (int i = 0; i < genreList.length(); i++) {
+//            JSONObject genre = genreList.getJSONObject(i);
+//            String genreName = genre.getString(KEY_NAME);
+//            genres.add(genreName);
+//        }
+//
+//        String runtime = detailRoot.getString(KEY_RUNTIME);
+//        if (runtime.equals("null")) runtime = "-";
+//
+//        ArrayList<Trailer> trailers = new ArrayList<>();
+//        JSONObject videosList = detailRoot.getJSONObject(KEY_VIDEOS);
+//        JSONArray videoResults = videosList.getJSONArray(KEY_RESULTS);
+//        for (int i = 0; i < videoResults.length(); i++) {
+//            JSONObject video = videoResults.getJSONObject(i);
+//            String videoKey = video.getString(KEY_VIDEO_KEY);
+//            String videoTitle = video.getString(KEY_NAME);
+//            String videoType = video.getString(KEY_VIDEO_TYPE);
+//            trailers.add(new Trailer(videoKey, videoTitle, videoType));
+//        }
+//
+//        JSONObject reviewsList = detailRoot.getJSONObject(KEY_REVIEWS);
+//        JSONArray reviewResults = reviewsList.getJSONArray(KEY_RESULTS);
+//        ArrayList<Review> reviews = new ArrayList<>();
+//        for (int i = 0; i < reviewResults.length(); i++) {
+//            JSONObject review = reviewResults.getJSONObject(i);
+//            String author = review.getString(KEY_REVIEW_AUTHOR);
+//            String content = review.getString(KEY_REVIEW_CONTENT);
+//            reviews.add(new Review(author, content));
+//        }
+//        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
+//                reviews, trailers);
+//    }
+
     public static FavouriteMovie parseMovieDetailJson(String json) throws JSONException {
 
-        JSONObject root = new JSONObject(json);
+        JSONObject detailRoot = new JSONObject(json);
 
-        String title = root.getString(KEY_TITLE);
-        String poster = root.getString(KEY_POSTER_PATH);
-        String backdrop = root.getString(KEY_BACKDROP);
-        String releaseDate = root.getString(KEY_RELEASE_DATE);
+        String title = detailRoot.getString(KEY_TITLE);
+        String poster = detailRoot.getString(KEY_POSTER_PATH);
+        String backdrop = detailRoot.getString(KEY_BACKDROP);
+        String releaseDate = detailRoot.getString(KEY_RELEASE_DATE);
         if (releaseDate.equals("null")) {
             releaseDate = "TBD";
         } else {
             releaseDate = FavouriteMovie.convertDateString(releaseDate);
         }
-        String overview = root.getString(KEY_OVERVIEW);
-        String userRating = root.getString(KEY_USER_RATING);
-        String language = root.getString(KEY_ORIGINAL_LANGUAGE);
-        int movieId = root.getInt(KEY_MOVIE_ID);
+        String overview = detailRoot.getString(KEY_OVERVIEW);
+        String userRating = detailRoot.getString(KEY_USER_RATING);
+        String language = detailRoot.getString(KEY_ORIGINAL_LANGUAGE);
+        int movieId = detailRoot.getInt(KEY_MOVIE_ID);
 
-        JSONArray genreList = root.getJSONArray(KEY_GENRES);
+        JSONArray genreList = detailRoot.getJSONArray(KEY_GENRES);
 
         ArrayList<String> genres = new ArrayList<>();
         for (int i = 0; i < genreList.length(); i++) {
@@ -152,31 +233,45 @@ public class NetworkUtils {
             genres.add(genreName);
         }
 
-        String runtime = root.getString(KEY_RUNTIME);
+        String runtime = detailRoot.getString(KEY_RUNTIME);
         if (runtime.equals("null")) runtime = "-";
 
+        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop,
+                movieId, genres, runtime, language);
+    }
+
+    public static List<Trailer> parseMovieVideosJson(String json) throws JSONException {
+
+        JSONObject videoRoot = new JSONObject(json);
+
+        int movieId = videoRoot.getInt(KEY_MOVIE_ID);
+
         ArrayList<Trailer> trailers = new ArrayList<>();
-        JSONObject videosList = root.getJSONObject(KEY_VIDEOS);
-        JSONArray videoResults = videosList.getJSONArray(KEY_RESULTS);
+        JSONArray videoResults = videoRoot.getJSONArray(KEY_RESULTS);
         for (int i = 0; i < videoResults.length(); i++) {
             JSONObject video = videoResults.getJSONObject(i);
             String videoKey = video.getString(KEY_VIDEO_KEY);
             String videoTitle = video.getString(KEY_NAME);
             String videoType = video.getString(KEY_VIDEO_TYPE);
-            trailers.add(new Trailer(videoKey, videoTitle, videoType));
+            trailers.add(new Trailer(videoKey, videoTitle, videoType, movieId));
         }
+        return trailers;
+    }
 
-        JSONObject reviewsList = root.getJSONObject(KEY_REVIEWS);
-        JSONArray reviewResults = reviewsList.getJSONArray(KEY_RESULTS);
+    public static List<Review> parseMovieReviewsJson(String json) throws JSONException {
+
+        JSONObject reviewRoot = new JSONObject(json);
+        int movieId = reviewRoot.getInt(KEY_MOVIE_ID);
+
+        JSONArray reviewResults = reviewRoot.getJSONArray(KEY_RESULTS);
         ArrayList<Review> reviews = new ArrayList<>();
         for (int i = 0; i < reviewResults.length(); i++) {
             JSONObject review = reviewResults.getJSONObject(i);
             String author = review.getString(KEY_REVIEW_AUTHOR);
             String content = review.getString(KEY_REVIEW_CONTENT);
-            reviews.add(new Review(author, content));
+            reviews.add(new Review(author, content, movieId));
         }
-        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop, movieId, genres, runtime, language,
-                reviews, trailers);
+        return reviews;
     }
 
     /**

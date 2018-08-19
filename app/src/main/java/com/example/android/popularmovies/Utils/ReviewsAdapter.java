@@ -14,11 +14,12 @@ import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder> {
 
     private static final int DEFAULT_MAX_LINE = 3;
-    private ArrayList<Review> reviews;
+    private List<Review> reviews;
     private ReviewItemListener itemListener;
 
     public interface ReviewItemListener {
@@ -75,7 +76,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
 
     }
 
-    public void setReviews(ArrayList<Review> reviews) {
+    public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
         notifyDataSetChanged();
     }

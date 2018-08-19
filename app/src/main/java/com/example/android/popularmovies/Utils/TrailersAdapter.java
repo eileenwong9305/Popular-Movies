@@ -23,12 +23,13 @@ import com.example.android.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Inflater;
 
 public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.TrailerViewHolder> {
 
     private Activity activity;
-    ArrayList<Trailer> trailers;
+    List<Trailer> trailers;
     final private TrailerClickListener trailerClickListener;
 
     public interface TrailerClickListener {
@@ -124,7 +125,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         }
     }
 
-    public void setTrailers(ArrayList<Trailer> trailers) {
+    public void setTrailers(List<Trailer> trailers) {
         this.trailers = trailers;
         notifyDataSetChanged();
     }
