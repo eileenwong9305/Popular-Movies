@@ -6,10 +6,8 @@ import android.util.Log;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
-import com.example.android.popularmovies.Data.MovieList;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MovieNetworkDataSource {

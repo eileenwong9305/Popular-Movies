@@ -1,7 +1,5 @@
 package com.example.android.popularmovies;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -9,15 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,15 +20,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
-import com.example.android.popularmovies.Data.MovieList;
-import com.example.android.popularmovies.Database.FavouriteDatabase;
-import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.InjectorUtils;
-import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
 import com.example.android.popularmovies.Utils.MoviesAdapter;
-import com.example.android.popularmovies.Utils.NetworkUtils;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     }
 
     @Override
-    public void onClick(MovieList movie) {
+    public void onClick(Movie movie) {
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra(KEY_SELECTED_MOVIE_ID_INTENT, movie.getMovieId());
         startActivity(intent);
@@ -157,9 +146,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private void loadMovies(final String sortOrder) {
         showOnlyLoading();
         if(sortOrder.equals(getString(R.string.pref_sort_favourites))) {
-            viewModel.getFavouriteMovieData().observe(this, new Observer<List<MovieList>>() {
+            viewModel.getFavouriteMovieData().observe(this, new Observer<List<Movie>>() {
                 @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
+                public void onChanged(@Nullable List<Movie> movieLists) {
                     String currentSort = getSortPreferenceValue(getString(R.string.pref_sort_key));
                     if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
                         adapter.setMovies(movieLists);
@@ -172,9 +161,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                 }
             });
         } else {
-            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<MovieList>>() {
+            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<Movie>>() {
                 @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
+                public void onChanged(@Nullable List<Movie> movieLists) {
                     adapter.setMovies(movieLists);
                     if (movieLists != null && movieLists.size() != 0) {
                         showMovieData();

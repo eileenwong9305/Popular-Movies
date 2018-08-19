@@ -1,18 +1,9 @@
 package com.example.android.popularmovies;
 
-import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.example.android.popularmovies.Data.Movie;
-import com.example.android.popularmovies.Data.MovieList;
-import com.example.android.popularmovies.Database.FavouriteDatabase;
-import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
 
 import java.util.List;
 
@@ -28,11 +19,11 @@ public class MainViewModel extends ViewModel {
 ////        return repository.getMovieData(sortOrder);
 ////    }
 
-    public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
+    public LiveData<List<Movie>> getOtherMovieData(String sortOrder) {
         return repository.getOtherMovieData(sortOrder);
     }
 
-    public LiveData<List<MovieList>> getFavouriteMovieData() {
+    public LiveData<List<Movie>> getFavouriteMovieData() {
         return repository.getFavouriteMovieData();
     }
 }

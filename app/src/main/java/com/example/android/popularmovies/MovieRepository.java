@@ -4,15 +4,12 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
-import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Database.MovieDao;
 import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
-import com.example.android.popularmovies.Utils.NetworkUtils;
 
 import java.util.List;
 
@@ -68,12 +65,12 @@ public class MovieRepository {
 //        }
 //    }
 
-    public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
+    public LiveData<List<Movie>> getOtherMovieData(String sortOrder) {
         movieNetworkDataSource.fetchMovie(sortOrder);
         return movieDao.loadAllCurrentMovies();
     }
 
-    public LiveData<List<MovieList>> getFavouriteMovieData() {
+    public LiveData<List<Movie>> getFavouriteMovieData() {
         return movieDao.loadAllFavouriteMovies();
     }
 

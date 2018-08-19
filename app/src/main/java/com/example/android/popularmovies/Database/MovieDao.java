@@ -2,27 +2,23 @@ package com.example.android.popularmovies.Database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
-import com.example.android.popularmovies.Data.MovieList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Dao
 public interface MovieDao {
 
     @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
-    LiveData<List<MovieList>> loadAllFavouriteMovies();
+    LiveData<List<Movie>> loadAllFavouriteMovies();
 
     @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
-    LiveData<List<MovieList>> loadAllCurrentMovies();
+    LiveData<List<Movie>> loadAllCurrentMovies();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void bulkInsert(List<Movie> movies);
