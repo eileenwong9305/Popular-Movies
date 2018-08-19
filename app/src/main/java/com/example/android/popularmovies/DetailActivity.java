@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -23,6 +24,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
@@ -75,6 +77,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @BindView(R.id.cardview_trailer) CardView trailerCardView;
     @BindView(R.id.cardview_reviews) CardView reviewCardView;
     @BindView(R.id.collapsing_toolbar_layout) CollapsingToolbarLayout collapsingToolbarLayout;
+    @BindView(R.id.pb_loading_indicator_detail) ProgressBar loadingIndicator;
+    @BindView(R.id.tv_error_message_detail) TextView errorMessage;
+    @BindView(R.id.scroll) NestedScrollView movieDetailContent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,17 +135,18 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
         new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movieId));
 
+        showOnlyLoading();
         DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
-//        viewModel.getFavouriteMovieId().observe(this, new Observer<List<Integer>>() {
-//            @Override
-//            public void onChanged(@Nullable List<Integer> movieIds) {
-//                if (movieIds != null && movieIds.contains(movie.getMovieId())) {
-//                    addToFavourite = true;
-//                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-//                }
-//            }
-//        });
+
+//        mMovie = viewModel.getMovieDetail(movieId).getValue();
+//        if (mMovie != null) {
+//            showMovieData();
+//            showMovieDetails(mMovie);
+//        } else {
+//            showErrorMessage();
+//        }
+
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -206,6 +213,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            } else if (viewModel.containMovieId(movieId)) {
+                Log.e("Contain", String.valueOf(movieId));
+                return viewModel.getMovieDetail(movieId);
             }
             return null;
         }
@@ -214,7 +224,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         protected void onPostExecute(FavouriteMovie movie) {
             mMovie = movie;
             if (movie != null) {
+                showMovieData();
                 showMovieDetails(movie);
+            } else {
+                showErrorMessage();
             }
         }
     }
@@ -237,13 +250,13 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         languageTextView.setText(movieDetails.getLanguage());
         ArrayList<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
-        if (movieDetails.getReviews().size() == 0) {
+        if (movieDetails.getReviews() == null || movieDetails.getReviews().size() == 0) {
             reviewCardView.setVisibility(View.GONE);
         } else {
             reviewCardView.setVisibility(View.VISIBLE);
             reviewsAdapter.setReviews(movieDetails.getReviews());
         }
-        if (movieDetails.getTrailers().size() == 0) {
+        if (movieDetails.getTrailers() == null || movieDetails.getTrailers().size() == 0) {
             trailerCardView.setVisibility(View.GONE);
         } else {
             trailerCardView.setVisibility(View.VISIBLE);
@@ -251,9 +264,30 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+    /**
+     * Show data and hide error message
+     */
+    private void showMovieData() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.INVISIBLE);
+        movieDetailContent.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Show error message and hide data
+     */
+    private void showErrorMessage() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.VISIBLE);
+        movieDetailContent.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * Hide data and error message and display loading indicator
+     */
+    private void showOnlyLoading() {
+        errorMessage.setVisibility(View.INVISIBLE);
+        movieDetailContent.setVisibility(View.INVISIBLE);
+        loadingIndicator.setVisibility(View.VISIBLE);
     }
 }

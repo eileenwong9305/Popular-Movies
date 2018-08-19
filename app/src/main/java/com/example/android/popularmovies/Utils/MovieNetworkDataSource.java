@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
+import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
 
@@ -18,10 +19,12 @@ public class MovieNetworkDataSource {
     private final AppExecutor appExecutor;
 
     private final MutableLiveData<List<Movie>> downloadedMovieData;
+    private final MutableLiveData<FavouriteMovie> movieDetail;
 
     private MovieNetworkDataSource (AppExecutor appExecutor) {
         this.appExecutor = appExecutor;
         downloadedMovieData = new MutableLiveData<>();
+        movieDetail = new MutableLiveData<>();
     }
 
     public static MovieNetworkDataSource getInstance(AppExecutor appExecutor) {
@@ -55,11 +58,34 @@ public class MovieNetworkDataSource {
         });
     }
 
+    public void fetchMovieDetail(final int movieId) {
+        appExecutor.networkIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (NetworkUtils.isOnline()) {
+                    try {
+                        URL queryUrl = NetworkUtils.buildUrl(movieId);
+                        String json = NetworkUtils.getResponseFromHttp(queryUrl);
+                        FavouriteMovie movie = NetworkUtils.parseMovieDetailJson(json);
+                        if (movie != null) {
+                            Log.e("GOTMOVIE", "YEAH");
+                            movieDetail.postValue(movie);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    movieDetail.postValue(null);
+                }
+            }
+        });
+    }
+
     public LiveData<List<Movie>> getMovieData() {
         return downloadedMovieData;
     }
 
-    public MutableLiveData<List<Movie>> getDownloadedMovieData() {
-        return downloadedMovieData;
+    public LiveData<FavouriteMovie> getMovieDetail() {
+        return movieDetail;
     }
 }

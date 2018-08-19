@@ -43,7 +43,7 @@ public interface MovieDao {
     void deleteSingleMovie(int movieId);
 
     @Query("SELECT * FROM favourite_movie WHERE movie_id = :movieId")
-    Movie loadFavouriteByMovieId(int movieId);
+    FavouriteMovie loadFavouriteByMovieId(int movieId);
 
     @Query("SELECT COUNT(id) FROM favourite_movie WHERE movie_id = :movieId")
     int getCountByMovieId(int movieId);

@@ -1,5 +1,8 @@
 package com.example.android.popularmovies.Utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -23,6 +26,7 @@ import java.net.SocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -222,12 +226,9 @@ public class NetworkUtils {
         }
     }
 
-    /**
-     * Returns default path for sorting movie data.
-     *
-     * @return default path
-     */
-    public static URL getDefaultSortByPathUrl() {
-        return buildUrl(DEFAULT_SORT_BY_PATH);
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager cn = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nf = Objects.requireNonNull(cn).getActiveNetworkInfo();
+        return nf != null && nf.isConnected();
     }
 }

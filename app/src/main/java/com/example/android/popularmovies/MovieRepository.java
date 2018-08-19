@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,6 +12,7 @@ import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Database.MovieDao;
 import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
+import com.example.android.popularmovies.Utils.NetworkUtils;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class MovieRepository {
     private MovieDao movieDao;
     private MovieNetworkDataSource movieNetworkDataSource;
     private AppExecutor appExecutor;
-    private LiveData<List<Movie>> selectedMovieList;
+    private MutableLiveData<FavouriteMovie> selectedMovie;
 
     private static final String FAVOURITE_DATABASE_VALUE = "favourites";
 
@@ -76,7 +78,6 @@ public class MovieRepository {
     }
 
     public boolean containMovieId(int movieId){
-        int value = movieDao.getCountByMovieId(movieId);
         return movieDao.getCountByMovieId(movieId) > 0;
     }
 
@@ -89,6 +90,31 @@ public class MovieRepository {
         });
     }
 
+    public FavouriteMovie getMovieDetails(final int movieId) {
+//        movieNetworkDataSource.fetchMovieDetail(movieId);
+//        LiveData<FavouriteMovie> movieDetail = movieNetworkDataSource.getMovieDetail();
+//        Log.e("GOTMOVIE", movieDetail.getValue().toString());
+//        if (movieDetail.getValue() != null) {
+//            Log.e("1", "1");
+//            return movieDetail;
+//        } else {
+//            return movieDao.loadFavouriteByMovieId(movieId);
+//        }
+//        appExecutor.networkIO().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (NetworkUtils.isOnline()) {
+//                    movieNetworkDataSource.fetchMovieDetail(movieId);
+//                    selectedMovie.postValue(movieNetworkDataSource.getMovieDetail().getValue());
+//                } else if (containMovieId(movieId)) {
+//                    selectedMovie.postValue(movieDao.loadFavouriteByMovieId(movieId).getValue());
+//                } else {
+//                    selectedMovie.postValue(null);
+//                }
+//            }
+//        });
+        return movieDao.loadFavouriteByMovieId(movieId);
+    }
     public void deleteSingleMovie(final int movieId) {
         appExecutor.diskIO().execute(new Runnable() {
             @Override

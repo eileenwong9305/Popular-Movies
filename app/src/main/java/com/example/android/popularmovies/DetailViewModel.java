@@ -27,4 +27,8 @@ public class DetailViewModel extends ViewModel {
     public void deleteSingleMovie(final int movieId) {
         repository.deleteSingleMovie(movieId);
     }
+
+    public FavouriteMovie getMovieDetail(int movieId) {
+        return repository.getMovieDetails(movieId);
+    }
 }
