@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingBottom="16dp"
-    android:paddingTop="16dp">
+    android:paddingBottom="@dimen/review_vertical_margin"
+    android:paddingLeft="@dimen/review_horizontal_margin"
+    android:paddingRight="@dimen/review_horizontal_margin"
+    android:paddingTop="@dimen/review_vertical_margin">
 
     <TextView
         android:id="@+id/tv_review_author"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/review_author_margin"
         android:textColor="@color/colorFont"
-        android:layout_marginBottom="4dp"
-        tools:text="Kelly"/>
+        android:textStyle="bold"
+        tools:text="Kelly" />
 
     <TextView
         android:id="@+id/tv_review_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="3"
         android:ellipsize="end"
-        tools:text="This is good"/>
+        android:maxLines="3"
+        tools:text="This is good" />
 
 </LinearLayout>

@@ -7,11 +7,22 @@
     <dimen name="label_vertical_margin">8dp</dimen>
     <dimen name="content_horizontal_margin">16dp</dimen>
     <dimen name="content_vertical_margin">8dp</dimen>
+    <dimen name="video_vertical_margin">16dp</dimen>
+    <dimen name="video_horizontal_margin">16dp</dimen>
+    <dimen name="review_vertical_margin">16dp</dimen>
+    <dimen name="review_horizontal_margin">16dp</dimen>
+    <dimen name="review_author_margin">4dp</dimen>
+    <dimen name="trailer_width">160dp</dimen>
+    <dimen name="trailer_height">100dp</dimen>
+    <dimen name="share_icon_padding_vertical">4dp</dimen>
+    <dimen name="share_icon_padding_horizontal">8dp</dimen>
     <dimen name="activity_padding_vertical">16dp</dimen>
     <dimen name="main_poster_height">300dp</dimen>
     <dimen name="backdrop_height">270dp</dimen>
     <dimen name="poster_width">150dp</dimen>
     <dimen name="poster_height">220dp</dimen>
     <dimen name="barrier_margin">270dp</dimen>
+    <dimen name="rating_bottom_margin">40dp</dimen>
     <dimen name="item_spacing">8dp</dimen>
+    <dimen name="card_corner_radius">5dp</dimen>
 </resources>

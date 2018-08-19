@@ -1,10 +1,9 @@
-package com.example.android.popularmovies.Utils;
+package com.example.android.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +12,12 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder> {
 
     private static final int DEFAULT_MAX_LINE = 3;
     private List<Review> reviews;
-    private ReviewItemListener itemListener;
-
-    public interface ReviewItemListener {
-        void onClick(TextView textView);
-    }
 
     @NonNull
     @Override
@@ -41,7 +34,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
             @Override
             public void onClick(View view) {
                 int maxLines = TextViewCompat.getMaxLines(holder.contentTextView);
-                switch(maxLines) {
+                switch (maxLines) {
                     case DEFAULT_MAX_LINE:
                         holder.contentTextView.setMaxLines(Integer.MAX_VALUE);
                         break;
@@ -56,6 +49,11 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
     public int getItemCount() {
         if (reviews == null) return 0;
         return reviews.size();
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+        notifyDataSetChanged();
     }
 
     public class ReviewViewHolder extends RecyclerView.ViewHolder {
@@ -74,10 +72,5 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
             contentTextView.setText(reviews.get(itemIndex).getContent());
         }
 
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-        notifyDataSetChanged();
     }
 }

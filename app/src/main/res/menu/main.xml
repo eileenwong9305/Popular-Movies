@@ -2,16 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_refresh_white_24dp"
-        android:orderInCategory="1"
-        android:title="@string/release_date"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/action_sort"
-        android:title="@string/pref_sort_label"
         android:icon="@drawable/ic_sort_black_24dp"
-        android:orderInCategory="3"
-        app:showAsAction="always"/>
+        android:orderInCategory="1"
+        android:title="@string/pref_sort_label"
+        app:showAsAction="always" />
 
 </menu>

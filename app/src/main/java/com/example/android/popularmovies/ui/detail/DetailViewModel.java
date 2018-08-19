@@ -1,13 +1,12 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui.detail;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
-import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
+import com.example.android.popularmovies.MovieRepository;
 
 import java.util.List;
 
@@ -22,6 +21,7 @@ public class DetailViewModel extends ViewModel {
     public boolean containMovieId(int movieId) {
         return repository.containMovieId(movieId);
     }
+
     public void insertFavourite(FavouriteMovie movie, List<Review> reviews, List<Trailer> trailers) {
         repository.insertFavourite(movie, reviews, trailers);
     }

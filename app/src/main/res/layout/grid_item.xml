@@ -17,14 +17,7 @@
 
     <TextView
         android:id="@+id/tv_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/label_vertical_margin"
-        android:layout_marginLeft="@dimen/label_horizontal_margin"
-        android:layout_marginRight="@dimen/label_horizontal_margin"
-        android:layout_marginTop="@dimen/title_top_margin"
-        android:textColor="@color/colorFont"
-        android:textSize="16sp"
+        style="@style/MovieTitleStyle"
         tools:text="Minion" />
 
 </LinearLayout>

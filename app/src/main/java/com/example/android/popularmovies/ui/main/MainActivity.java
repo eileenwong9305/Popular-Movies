@@ -1,11 +1,9 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui.main;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,12 +14,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.Utils.InjectorUtils;
-import com.example.android.popularmovies.Utils.MoviesAdapter;
+import com.example.android.popularmovies.adapter.MoviesAdapter;
+import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
+import com.example.android.popularmovies.ui.detail.DetailActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,22 +32,20 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener{
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
 
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
-    private static final int SPAN_COUNT = 2;
     public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie";
-    private static final String KEY_PARCEL_MOVIE_LIST = "movies_list";
 
-    @BindView(R.id.pb_loading_indicator) ProgressBar loadingIndicator;
-    @BindView(R.id.tv_error_message) TextView errorMessageTextView;
-    @BindView(R.id.rv_movie) RecyclerView recyclerView;
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar loadingIndicator;
+    @BindView(R.id.tv_error_message)
+    TextView errorMessageTextView;
+    @BindView(R.id.rv_movie)
+    RecyclerView recyclerView;
+    @BindView(R.id.layout_error)
+    LinearLayout errorLayout;
 
     private MoviesAdapter adapter;
-    private ArrayList<Movie> movieList;
-    private SharedPreferences mSharedPreferences;
-
     private MainViewModel viewModel;
 
     @Override
@@ -54,24 +54,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-        GridLayoutManager layoutManager;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            layoutManager = new GridLayoutManager(this, 2);
-        } else {
-            layoutManager = new GridLayoutManager(this, 4);
-        }
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-        adapter = new MoviesAdapter(this);
-        recyclerView.setAdapter(adapter);
-
-
+        setupRecyclerView();
 
         MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
-        String sortOrder = getSortPreferenceValue(getString(R.string.pref_sort_key));
+        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
         loadMovies(sortOrder);
-
     }
 
     @Override
@@ -90,14 +78,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            String sortOrder = getSortPreferenceValue(getString(R.string.pref_sort_key));
-            loadMovies(sortOrder);
-            return true;
-        } else if (id == R.id.action_sort) {
+        if (id == R.id.action_sort) {
             final String sortKey = getString(R.string.pref_sort_key);
             final ArrayList<String> itemValue = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.pref_sort_values)));
-            int selectedPosition = itemValue.indexOf(getSortPreferenceValue(sortKey));
+            int selectedPosition = itemValue.indexOf(SharedPreferenceHelper.getSortPreferenceValue(this, sortKey));
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Sort Order");
             builder.setSingleChoiceItems(getResources().getStringArray(R.array.pref_sort_options),
@@ -105,58 +89,60 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            setSharedPreference(sortKey, itemValue.get(i));
+                            SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
                             loadMovies(itemValue.get(i));
                             dialogInterface.dismiss();
                         }
                     });
             AlertDialog dialog = builder.create();
             dialog.show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * Show data and hide error message
+     * Refresh and load movie list
+     *
+     * @param v view
      */
-    private void showMovieData() {
-        loadingIndicator.setVisibility(View.INVISIBLE);
-        errorMessageTextView.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
+    public void refreshView(View v) {
+        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
+        loadMovies(sortOrder);
     }
 
     /**
-     * Show error message and hide data
+     * Setup recyclerview and layoutManager based on the orientation of device
      */
-    private void showErrorMessage() {
-        loadingIndicator.setVisibility(View.INVISIBLE);
-        errorMessageTextView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.INVISIBLE);
+    private void setupRecyclerView() {
+        GridLayoutManager layoutManager;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layoutManager = new GridLayoutManager(this, 2);
+        } else {
+            layoutManager = new GridLayoutManager(this, 4);
+        }
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        adapter = new MoviesAdapter(this);
+        recyclerView.setAdapter(adapter);
     }
 
     /**
-     * Hide data and error message and display loading indicator
+     * Load movie list based on selected sort order preference.
+     *
+     * @param sortOrder
      */
-    private void showOnlyLoading() {
-        errorMessageTextView.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.INVISIBLE);
-        loadingIndicator.setVisibility(View.VISIBLE);
-    }
-
     private void loadMovies(final String sortOrder) {
         showOnlyLoading();
-        if(sortOrder.equals(getString(R.string.pref_sort_favourites))) {
+        if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
             viewModel.getFavouriteMovieData().observe(this, new Observer<List<Movie>>() {
                 @Override
                 public void onChanged(@Nullable List<Movie> movieLists) {
-                    String currentSort = getSortPreferenceValue(getString(R.string.pref_sort_key));
+                    String currentSort = SharedPreferenceHelper.getSortPreferenceValue(MainActivity.this,
+                            getString(R.string.pref_sort_key));
                     if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
                         adapter.setMovies(movieLists);
-                        if (movieLists != null && movieLists.size() != 0) {
-                            showMovieData();
-                        } else {
-                            showErrorMessage();
-                        }
+                        displayUI(movieLists);
                     }
                 }
             });
@@ -165,25 +151,49 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                 @Override
                 public void onChanged(@Nullable List<Movie> movieLists) {
                     adapter.setMovies(movieLists);
-                    if (movieLists != null && movieLists.size() != 0) {
-                        showMovieData();
-                    } else {
-                        showErrorMessage();
-                    }
+                    displayUI(movieLists);
                 }
             });
         }
     }
 
-    private void setSharedPreference(String key, String value) {
-        SharedPreferences sortPreference = getSharedPreferences(getString(R.string.preference_key_file), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sortPreference.edit();
-        editor.putString(key, value);
-        editor.apply();
+    /**
+     * Display data based on availability of movie data
+     *
+     * @param movieLists list of movies
+     */
+    private void displayUI(List<Movie> movieLists) {
+        if (movieLists != null && movieLists.size() != 0) {
+            showMovieData();
+        } else {
+            showErrorMessage();
+        }
     }
 
-    private String getSortPreferenceValue(String key) {
-        SharedPreferences sortPreference = getSharedPreferences(getString(R.string.preference_key_file), Context.MODE_PRIVATE);
-        return sortPreference.getString(key, getString(R.string.pref_sort_default));
+    /**
+     * Show data and hide error message
+     */
+    private void showMovieData() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        errorLayout.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Show error message and hide data
+     */
+    private void showErrorMessage() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        errorLayout.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * Hide data and error message and display loading indicator
+     */
+    private void showOnlyLoading() {
+        errorLayout.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
+        loadingIndicator.setVisibility(View.VISIBLE);
     }
 }

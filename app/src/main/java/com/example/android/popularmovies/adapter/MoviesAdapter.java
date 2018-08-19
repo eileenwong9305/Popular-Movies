@@ -1,8 +1,7 @@
-package com.example.android.popularmovies.Utils;
+package com.example.android.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +51,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      * @param movies movie data to be displayed
      */
     public void setMovies(List<Movie> movies) {
-        Log.e("ADAPTER", movies.toString());
         this.movies = movies;
         notifyDataSetChanged();
     }

@@ -1,4 +1,4 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui.detail;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -19,7 +19,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,15 +30,15 @@ import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
-import com.example.android.popularmovies.Database.FavouriteDatabase;
+import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.Utils.AppExecutor;
-import com.example.android.popularmovies.Utils.GenreAdapter;
+import com.example.android.popularmovies.adapter.GenreAdapter;
 import com.example.android.popularmovies.Utils.InjectorUtils;
-import com.example.android.popularmovies.Utils.ReviewsAdapter;
-import com.example.android.popularmovies.Utils.TrailersAdapter;
+import com.example.android.popularmovies.adapter.ReviewsAdapter;
+import com.example.android.popularmovies.adapter.TrailersAdapter;
+import com.example.android.popularmovies.ui.main.MainActivity;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -47,11 +46,45 @@ import butterknife.ButterKnife;
 
 public class DetailActivity extends AppCompatActivity implements TrailersAdapter.TrailerClickListener {
 
-    private static final String KEY_PARCEL = "selected_movie";
+    public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
     private static final String BACKDROP_BASE_PATH = "http://image.tmdb.org/t/p/w500";
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
-    public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
-
+    @BindView(R.id.iv_detail_backdrop)
+    ImageView backdropImageView;
+    @BindView(R.id.iv_detail_poster)
+    ImageView posterImageView;
+    @BindView(R.id.tv_detail_overview)
+    TextView overviewTextView;
+    @BindView(R.id.tv_detail_user_rating)
+    TextView userRatingTextView;
+    @BindView(R.id.tv_detail_release_date)
+    TextView releaseDateTextView;
+    @BindView(R.id.tv_detail_language)
+    TextView languageTextView;
+    @BindView(R.id.tv_detail_runtime)
+    TextView runtimeTextView;
+    @BindView(R.id.rv_review)
+    RecyclerView reviewRecyclerView;
+    @BindView(R.id.rv_trailer)
+    RecyclerView trailerRecyclerView;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+    @BindView(R.id.rv_genre)
+    RecyclerView genreRecyclerView;
+    @BindView(R.id.cardview_trailer)
+    CardView trailerCardView;
+    @BindView(R.id.cardview_reviews)
+    CardView reviewCardView;
+    @BindView(R.id.collapsing_toolbar_layout)
+    CollapsingToolbarLayout collapsingToolbarLayout;
+    @BindView(R.id.pb_loading_indicator_detail)
+    ProgressBar loadingIndicator;
+    @BindView(R.id.tv_error_message_detail)
+    TextView errorMessage;
+    @BindView(R.id.scroll)
+    NestedScrollView movieDetailContent;
+    @BindView(R.id.collapsing_toolbar)
+    Toolbar toolbar;
     private FavouriteMovie movieDetails;
     private List<Review> movieReviews;
     private List<Trailer> movieTrailers;
@@ -59,44 +92,13 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
     private GenreAdapter genreAdapter;
-
-    private FavouriteDatabase mDb;
     private DetailViewModel viewModel;
     private boolean addToFavourite = false;
-
-    @BindView(R.id.iv_detail_backdrop) ImageView backdropImageView;
-    @BindView(R.id.iv_detail_poster) ImageView posterImageView;
-    @BindView(R.id.tv_detail_overview) TextView overviewTextView;
-    @BindView(R.id.tv_detail_user_rating) TextView userRatingTextView;
-    @BindView(R.id.tv_detail_release_date) TextView releaseDateTextView;
-    @BindView(R.id.tv_detail_language) TextView languageTextView;
-    @BindView(R.id.tv_detail_runtime) TextView runtimeTextView;
-    @BindView(R.id.rv_review) RecyclerView reviewRecyclerView;
-    @BindView(R.id.rv_trailer) RecyclerView trailerRecyclerView;
-    @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.rv_genre) RecyclerView genreRecyclerView;
-    @BindView(R.id.cardview_trailer) CardView trailerCardView;
-    @BindView(R.id.cardview_reviews) CardView reviewCardView;
-    @BindView(R.id.collapsing_toolbar_layout) CollapsingToolbarLayout collapsingToolbarLayout;
-    @BindView(R.id.pb_loading_indicator_detail) ProgressBar loadingIndicator;
-    @BindView(R.id.tv_error_message_detail) TextView errorMessage;
-    @BindView(R.id.scroll) NestedScrollView movieDetailContent;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.collapsing_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mDb = FavouriteDatabase.getInstance(getApplicationContext());
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -106,7 +108,70 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
 
         ButterKnife.bind(this);
+        setupToolbar();
+        setupRecyclerView();
 
+        showOnlyLoading();
+        DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
+        viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
+        displayMovieInfo();
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (addToFavourite) {
+                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+                    viewModel.deleteSingleMovie(movieId);
+                    addToFavourite = false;
+
+                    Snackbar.make(view, "Removed from Favourite", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                    viewModel.insertFavourite(movieDetails, movieReviews, movieTrailers);
+                    addToFavourite = true;
+                    Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(String movieKey) {
+        Uri youtubeUri = Uri.parse(YOUTUBE_BASE_URL + movieKey);
+        Intent startYoutube = new Intent(Intent.ACTION_VIEW, youtubeUri);
+        if (startYoutube.resolveActivity(getPackageManager()) != null) {
+            startActivity(startYoutube);
+        }
+    }
+
+    /**
+     * Set up action bar and up button
+     */
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    /**
+     * Set up recycler views
+     */
+    private void setupRecyclerView() {
         ChipsLayoutManager genreLayoutManager = ChipsLayoutManager.newBuilder(this)
                 .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT).withLastRow(true)
                 .setOrientation(ChipsLayoutManager.HORIZONTAL)
@@ -133,11 +198,12 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewRecyclerView.getContext(),
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
+    }
 
-        showOnlyLoading();
-        DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
-        viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
-
+    /**
+     * Load movie information
+     */
+    private void displayMovieInfo() {
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -151,14 +217,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         viewModel.getMovieDetail(movieId).observe(this, new Observer<FavouriteMovie>() {
             @Override
             public void onChanged(@Nullable FavouriteMovie favouriteMovie) {
-                Log.e(getClass().getSimpleName(), "get movie detail");
                 if (favouriteMovie != null) {
-                    Log.e(getClass().getSimpleName(), "load movie detail");
-                    showMovieData();
                     showMovieDetails(favouriteMovie);
+                    showMovieData();
                     movieDetails = favouriteMovie;
                 } else {
-                    Log.e(getClass().getSimpleName(), "error");
                     showErrorMessage();
                 }
             }
@@ -179,48 +242,13 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 showMovieVideo(trailers);
             }
         });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (addToFavourite) {
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
-                    viewModel.deleteSingleMovie(movieId);
-                    addToFavourite = false;
-
-                    Snackbar.make(view, "Removed from Favourite", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                } else {
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    viewModel.insertFavourite(movieDetails, movieReviews, movieTrailers);
-                    addToFavourite = true;
-                    Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            }
-        });
-
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(String movieKey) {
-        Uri youtubeUri = Uri.parse(YOUTUBE_BASE_URL + movieKey);
-        Intent startYoutube = new Intent(Intent.ACTION_VIEW, youtubeUri);
-        if (startYoutube.resolveActivity(getPackageManager()) != null) {
-            startActivity(startYoutube);
-        }
-    }
-
+    /**
+     * Load details of movie
+     *
+     * @param movieDetails details of movie
+     */
     private void showMovieDetails(FavouriteMovie movieDetails) {
         collapsingToolbarLayout.setTitle(movieDetails.getTitle());
         String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
@@ -241,6 +269,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         genreAdapter.setGenres(genres);
     }
 
+    /**
+     * Load list of reviews
+     *
+     * @param movieReviews list of reviews
+     */
     private void showMovieReview(List<Review> movieReviews) {
         if (movieReviews == null || movieReviews.size() == 0) {
             reviewCardView.setVisibility(View.GONE);
@@ -250,6 +283,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
     }
 
+    /**
+     * Load list of videos
+     *
+     * @param movieVideos list of videos
+     */
     private void showMovieVideo(List<Trailer> movieVideos) {
         if (movieVideos == null || movieVideos.size() == 0) {
             trailerCardView.setVisibility(View.GONE);

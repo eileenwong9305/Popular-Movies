@@ -1,11 +1,10 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui.main;
 
-import android.app.Application;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import com.example.android.popularmovies.Database.FavouriteDatabase;
+import com.example.android.popularmovies.MovieRepository;
 
 public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
@@ -18,6 +17,6 @@ public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new  MainViewModel(repository);
+        return (T) new MainViewModel(repository);
     }
 }

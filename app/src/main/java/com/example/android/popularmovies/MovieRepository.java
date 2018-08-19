@@ -29,9 +29,7 @@ public class MovieRepository {
     private MutableLiveData<List<Trailer>> movieTrailers;
     private MutableLiveData<List<Review>> movieReviews;
 
-    private static final String FAVOURITE_DATABASE_VALUE = "favourites";
-
-    private MovieRepository(MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor){
+    private MovieRepository(MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor) {
         movieDao = dao;
         movieNetworkDataSource = networkDataSource;
         appExecutor = executor;
@@ -75,7 +73,7 @@ public class MovieRepository {
         return movieDao.loadAllFavouriteMovies();
     }
 
-    public boolean containMovieId(int movieId){
+    public boolean containMovieId(int movieId) {
         return movieDao.getCountByMovieId(movieId) > 0;
     }
 
@@ -109,7 +107,6 @@ public class MovieRepository {
                             if (NetworkUtils.isOnline()) {
                                 try {
                                     URL detailUrl = NetworkUtils.buildUrl(movieId, NetworkUtils.DETAIL_PATH);
-                                    Log.e("DETAIL_PATH URL", detailUrl.toString());
                                     String detailJson = NetworkUtils.getResponseFromHttp(detailUrl);
                                     FavouriteMovie detail = NetworkUtils.parseMovieDetailJson(detailJson);
                                     if (detail != null) {
@@ -117,7 +114,6 @@ public class MovieRepository {
                                     }
 
                                     URL videoUrl = NetworkUtils.buildUrl(movieId, NetworkUtils.VIDEOS_PATH);
-                                    Log.e("VIDEOS_PATH URL", videoUrl.toString());
                                     String videoJson = NetworkUtils.getResponseFromHttp(videoUrl);
                                     List<Trailer> trailer = NetworkUtils.parseMovieVideosJson(videoJson);
                                     if (trailer != null && trailer.size() != 0) {
@@ -127,7 +123,6 @@ public class MovieRepository {
                                     }
 
                                     URL reviewUrl = NetworkUtils.buildUrl(movieId, NetworkUtils.REVIEWS_PATH);
-                                    Log.e("REVIEWS_PATH URL", reviewUrl.toString());
                                     String reviewJson = NetworkUtils.getResponseFromHttp(reviewUrl);
                                     List<Review> review = NetworkUtils.parseMovieReviewsJson(reviewJson);
                                     if (review != null && review.size() != 0) {
@@ -149,6 +144,7 @@ public class MovieRepository {
             }
         });
     }
+
     public LiveData<FavouriteMovie> getMovieDetail(int movieId) {
         loadMovieDetails(movieId);
         return movieDetails;

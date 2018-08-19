@@ -1,4 +1,4 @@
-package com.example.android.popularmovies.Utils;
+package com.example.android.popularmovies.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,30 +11,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmovies.Data.Trailer;
-import com.example.android.popularmovies.DetailActivity;
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.ui.detail.DetailActivity;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.TrailerViewHolder> {
 
-    private Activity activity;
-    List<Trailer> trailers;
     final private TrailerClickListener trailerClickListener;
-
-    public interface TrailerClickListener {
-        void onClick(String movieKey);
-    }
+    List<Trailer> trailers;
+    private Activity activity;
 
     public TrailersAdapter(Activity activity, TrailerClickListener trailerClickListener) {
         this.activity = activity;
@@ -66,7 +58,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
                         int id = menuItem.getItemId();
                         if (id == R.id.action_share) {
                             Trailer selectedTrailer = trailers.get(position);
-                            String mimeType  = "text/plain";
+                            String mimeType = "text/plain";
                             String title = "Share a link";
                             String linkToShare = "Watch \"" + selectedTrailer.getTitle() + "\" on Youtube\n\n" +
                                     DetailActivity.YOUTUBE_BASE_URL + selectedTrailer.getVideoKey();
@@ -83,12 +75,19 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         });
     }
 
-
-
     @Override
     public int getItemCount() {
         if (trailers == null) return 0;
         return trailers.size();
+    }
+
+    public void setTrailers(List<Trailer> trailers) {
+        this.trailers = trailers;
+        notifyDataSetChanged();
+    }
+
+    public interface TrailerClickListener {
+        void onClick(String movieKey);
     }
 
     public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -123,11 +122,6 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
             int position = getAdapterPosition();
             trailerClickListener.onClick(trailers.get(position).getVideoKey());
         }
-    }
-
-    public void setTrailers(List<Trailer> trailers) {
-        this.trailers = trailers;
-        notifyDataSetChanged();
     }
 
 }

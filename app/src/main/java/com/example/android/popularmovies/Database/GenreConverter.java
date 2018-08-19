@@ -3,7 +3,6 @@ package com.example.android.popularmovies.Database;
 import android.arch.persistence.room.TypeConverter;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

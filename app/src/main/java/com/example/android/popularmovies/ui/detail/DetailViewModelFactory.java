@@ -1,9 +1,10 @@
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui.detail;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.support.annotation.NonNull;
+
+import com.example.android.popularmovies.MovieRepository;
 
 public class DetailViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 

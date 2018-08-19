@@ -28,9 +28,6 @@ public interface MovieDao {
     @Query("DELETE from current_movie")
     void deleteOldData();
 
-//    @Query("SELECT movie_id FROM favourite_movie ORDER BY id")
-//    List<Integer> loadAllFavouritesMovieId();
-
     @Insert
     void insertFavourite(FavouriteMovie movie);
 
@@ -39,9 +36,6 @@ public interface MovieDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTrailer(List<Trailer> trailers);
-
-//    @Delete
-//    void deleteFavourite(Movie movie);
 
     @Query("DELETE FROM favourite_movie WHERE movie_id = :movieId")
     void deleteSingleMovie(int movieId);

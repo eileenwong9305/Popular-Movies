@@ -5,14 +5,6 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
-import android.util.Log;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 @Entity(tableName = "current_movie", indices = {@Index(value = {"movie_id"}, unique = true)})
 public class Movie {
@@ -23,8 +15,6 @@ public class Movie {
     private String poster;
     @ColumnInfo(name = "movie_id")
     private int movieId;
-
-
 
     public Movie(int id, String title, String poster, int movieId) {
         this.id = id;
@@ -55,7 +45,5 @@ public class Movie {
     public int getMovieId() {
         return movieId;
     }
-
-
 
 }

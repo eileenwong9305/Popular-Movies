@@ -1,11 +1,11 @@
 package com.example.android.popularmovies.Utils;
 
+import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import android.os.Handler;
-import android.support.annotation.NonNull;
 
 public class AppExecutor {
 
@@ -14,6 +14,7 @@ public class AppExecutor {
     private final Executor diskIO;
     private final Executor mainThread;
     private final Executor networkIO;
+
     private AppExecutor(Executor diskIO, Executor networkIO, Executor mainThread) {
         this.diskIO = diskIO;
         this.networkIO = networkIO;
@@ -45,6 +46,7 @@ public class AppExecutor {
 
     private static class MainThreadExecutor implements Executor {
         private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
         public void execute(@NonNull Runnable command) {
             mainThreadHandler.post(command);
         }

@@ -37,14 +37,10 @@ public class FavouriteMovie {
     private List<String> genres;
     private String runtime;
     private String language;
-    @Ignore
-    private ArrayList<Review> reviews;
-    @Ignore
-    private ArrayList<Trailer> trailers;
 
 
     public FavouriteMovie(int id, String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId, List<String> genres, String runtime, String language) {
+                          String releaseDate, String backdrop, int movieId, List<String> genres, String runtime, String language) {
         this.id = id;
         this.title = title;
         this.poster = poster;
@@ -56,7 +52,6 @@ public class FavouriteMovie {
         this.genres = genres;
         this.runtime = runtime;
         this.language = language;
-
     }
 
     @Ignore
@@ -73,25 +68,25 @@ public class FavouriteMovie {
         this.genres = genres;
         this.runtime = runtime;
         this.language = language;
-
     }
 
-    @Ignore
-    public FavouriteMovie(String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId, List<String> genres, String runtime,
-                 String language, ArrayList<Review> reviews, ArrayList<Trailer> trailers) {
-        this.title = title;
-        this.poster = poster;
-        this.overview = overview;
-        this.userRating = userRating;
-        this.releaseDate = releaseDate;
-        this.backdrop = backdrop;
-        this.movieId = movieId;
-        this.genres = genres;
-        this.runtime = runtime;
-        this.language = language;
-        this.reviews = reviews;
-        this.trailers = trailers;
+    /**
+     * Change the date format
+     *
+     * @param dateString date in String type
+     * @return Converted date string
+     */
+    public static String convertDateString(String dateString) {
+        Log.e("DATE", dateString);
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        return dateFormatter.format(date);
     }
 
     public int getId() {
@@ -100,22 +95,6 @@ public class FavouriteMovie {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setGenres(ArrayList<String> genres) {
-        this.genres = genres;
-    }
-
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
-    }
-
-    public void setReviews(ArrayList<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public void setTrailers(ArrayList<Trailer> trailers) {
-        this.trailers = trailers;
     }
 
     public String getOverview() {
@@ -166,50 +145,31 @@ public class FavouriteMovie {
         this.backdrop = backdrop;
     }
 
-    public void setMovieId(int movieId) {
-        this.movieId = movieId;
-    }
-
     public int getMovieId() {
         return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 
     public List<String> getGenres() {
         return genres;
     }
 
+    public void setGenres(ArrayList<String> genres) {
+        this.genres = genres;
+    }
+
     public String getRuntime() {
         return runtime;
     }
 
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
+    }
+
     public String getLanguage() {
         return language;
-    }
-
-    public ArrayList<Review> getReviews() {
-        return reviews;
-    }
-
-    public ArrayList<Trailer> getTrailers() {
-        return trailers;
-    }
-
-    /**
-     * Change the date format
-     *
-     * @param dateString date in String type
-     * @return Converted date string
-     */
-    public static String convertDateString(String dateString) {
-        Log.e("DATE", dateString);
-        Date date = null;
-        try {
-            date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.MEDIUM);
-        return dateFormatter.format(date);
     }
 }

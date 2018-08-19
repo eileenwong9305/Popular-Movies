@@ -1,4 +1,4 @@
-package com.example.android.popularmovies.Utils;
+package com.example.android.popularmovies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,13 +10,11 @@ import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHolder>{
+public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHolder> {
 
     private List<String> genres;
-
 
     @NonNull
     @Override
@@ -37,6 +35,11 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHol
         return genres.size();
     }
 
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+        notifyDataSetChanged();
+    }
+
     public class GenreViewHolder extends RecyclerView.ViewHolder {
 
         TextView genreTextView;
@@ -49,10 +52,5 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHol
         void bind(int itemIndex) {
             genreTextView.setText(genres.get(itemIndex));
         }
-    }
-
-    public void setGenres (List<String> genres) {
-        this.genres = genres;
-        notifyDataSetChanged();
     }
 }

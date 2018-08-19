@@ -20,6 +20,7 @@ public abstract class FavouriteDatabase extends RoomDatabase {
     private static final Object LOCK = new Object();
     private static final String DATABASE_NAME = "movies";
     private static FavouriteDatabase sInstance;
+
     public static FavouriteDatabase getInstance(Context context) {
         if (sInstance == null) {
             synchronized (LOCK) {
