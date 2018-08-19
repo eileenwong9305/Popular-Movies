@@ -13,7 +13,7 @@ import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
 
 @Database(entities = {FavouriteMovie.class, Movie.class, Review.class, Trailer.class}, version = 1, exportSchema = false)
-//@TypeConverters(GenreConverter.class)
+@TypeConverters(GenreConverter.class)
 public abstract class FavouriteDatabase extends RoomDatabase {
 
     private static final String LOG_TAG = FavouriteDatabase.class.getSimpleName();

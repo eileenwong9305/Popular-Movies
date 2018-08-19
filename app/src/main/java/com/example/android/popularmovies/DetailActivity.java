@@ -134,19 +134,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 reviewLayoutManager.getOrientation());
         reviewRecyclerView.addItemDecoration(dividerItemDecoration);
 
-//        new FetchMovieDetailTask().execute(NetworkUtils.buildUrl(movieId));
-
         showOnlyLoading();
         DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
         viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
-
-//        movieDetails = viewModel.getMovieDetail(movieId).getValue();
-//        if (movieDetails != null) {
-//            showMovieData();
-//            showMovieDetails(movieDetails);
-//        } else {
-//            showErrorMessage();
-//        }
 
         AppExecutor.getInstance().diskIO().execute(new Runnable() {
             @Override
@@ -229,73 +219,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         if (startYoutube.resolveActivity(getPackageManager()) != null) {
             startActivity(startYoutube);
         }
-
     }
-
-
-//    public class FetchMovieDetailTask extends AsyncTask<URL, Void, FavouriteMovie> {
-//
-//        @Override
-//        protected FavouriteMovie doInBackground(URL... urls) {
-//            if (urls.length == 0) return null;
-//            URL url = urls[0];
-//            if (NetworkUtils.isOnline()){
-//                try {
-//                    String json = NetworkUtils.getResponseFromHttp(url);
-//                    return NetworkUtils.parseMovieDetailJson(json);
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                }
-//            } else if (viewModel.containMovieId(movieId)) {
-//                Log.e("Contain", String.valueOf(movieId));
-//                return viewModel.getMovieDetail(movieId);
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(FavouriteMovie movie) {
-//            movieDetails = movie;
-//            if (movie != null) {
-//                showMovieData();
-//                showMovieDetails(movie);
-//            } else {
-//                showErrorMessage();
-//            }
-//        }
-//    }
-
-//    private void showMovieDetails(FavouriteMovie movieDetails) {
-//        collapsingToolbarLayout.setTitle(movieDetails.getTitle());
-//        String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
-//        Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
-//
-//        if (movieDetails.getPoster().equals("null")) {
-//            posterImageView.setImageResource(R.drawable.no_pic);
-//        } else {
-//            String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
-//            Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
-//        }
-//        overviewTextView.setText(movieDetails.getOverview());
-//        userRatingTextView.setText(movieDetails.getUserRating());
-//        releaseDateTextView.setText(movieDetails.getReleaseDate());
-//        runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
-//        languageTextView.setText(movieDetails.getLanguage());
-//        ArrayList<String> genres = movieDetails.getGenres();
-//        genreAdapter.setGenres(genres);
-//        if (movieDetails.getReviews() == null || movieDetails.getReviews().size() == 0) {
-//            reviewCardView.setVisibility(View.GONE);
-//        } else {
-//            reviewCardView.setVisibility(View.VISIBLE);
-//            reviewsAdapter.setReviews(movieDetails.getReviews());
-//        }
-//        if (movieDetails.getTrailers() == null || movieDetails.getTrailers().size() == 0) {
-//            trailerCardView.setVisibility(View.GONE);
-//        } else {
-//            trailerCardView.setVisibility(View.VISIBLE);
-//            trailersAdapter.setTrailers(movieDetails.getTrailers());
-//        }
-//    }
 
     private void showMovieDetails(FavouriteMovie movieDetails) {
         collapsingToolbarLayout.setTitle(movieDetails.getTitle());
@@ -313,7 +237,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         releaseDateTextView.setText(movieDetails.getReleaseDate());
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
         languageTextView.setText(movieDetails.getLanguage());
-        ArrayList<String> genres = movieDetails.getGenres();
+        List<String> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
     }
 

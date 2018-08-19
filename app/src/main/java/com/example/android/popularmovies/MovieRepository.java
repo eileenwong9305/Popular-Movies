@@ -84,8 +84,12 @@ public class MovieRepository {
             @Override
             public void run() {
                 movieDao.insertFavourite(movie);
-                movieDao.insertReview(reviews);
-                movieDao.insertTrailer(trailers);
+                if (reviews != null) {
+                    movieDao.insertReview(reviews);
+                }
+                if (trailers != null) {
+                    movieDao.insertTrailer(trailers);
+                }
             }
         });
     }
@@ -96,6 +100,8 @@ public class MovieRepository {
             public void run() {
                 if (containMovieId(movieId)) {
                     movieDetails.postValue(movieDao.loadFavouriteByMovieId(movieId));
+                    movieTrailers.postValue(movieDao.loadTrailerByMovieId(movieId));
+                    movieReviews.postValue(movieDao.loadReviewByMovieId(movieId));
                 } else {
                     appExecutor.networkIO().execute(new Runnable() {
                         @Override

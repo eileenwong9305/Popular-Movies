@@ -5,13 +5,17 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.util.Log;
+
+import com.example.android.popularmovies.Database.GenreConverter;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 @Entity(tableName = "favourite_movie", indices = {@Index(value = {"movie_id"}, unique = true)})
@@ -29,8 +33,8 @@ public class FavouriteMovie {
     @ColumnInfo(name = "movie_id")
     private int movieId;
 
-    @Ignore
-    private ArrayList<String> genres;
+    @TypeConverters(GenreConverter.class)
+    private List<String> genres;
     private String runtime;
     private String language;
     @Ignore
@@ -40,7 +44,7 @@ public class FavouriteMovie {
 
 
     public FavouriteMovie(int id, String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId, String runtime, String language) {
+                 String releaseDate, String backdrop, int movieId, List<String> genres, String runtime, String language) {
         this.id = id;
         this.title = title;
         this.poster = poster;
@@ -49,6 +53,7 @@ public class FavouriteMovie {
         this.releaseDate = releaseDate;
         this.backdrop = backdrop;
         this.movieId = movieId;
+        this.genres = genres;
         this.runtime = runtime;
         this.language = language;
 
@@ -56,7 +61,7 @@ public class FavouriteMovie {
 
     @Ignore
     public FavouriteMovie(String title, String poster, String overview, String userRating,
-                          String releaseDate, String backdrop, int movieId, ArrayList<String> genres,
+                          String releaseDate, String backdrop, int movieId, List<String> genres,
                           String runtime, String language) {
         this.title = title;
         this.poster = poster;
@@ -73,7 +78,7 @@ public class FavouriteMovie {
 
     @Ignore
     public FavouriteMovie(String title, String poster, String overview, String userRating,
-                 String releaseDate, String backdrop, int movieId, ArrayList<String> genres, String runtime,
+                 String releaseDate, String backdrop, int movieId, List<String> genres, String runtime,
                  String language, ArrayList<Review> reviews, ArrayList<Trailer> trailers) {
         this.title = title;
         this.poster = poster;
@@ -169,7 +174,7 @@ public class FavouriteMovie {
         return movieId;
     }
 
-    public ArrayList<String> getGenres() {
+    public List<String> getGenres() {
         return genres;
     }
 
