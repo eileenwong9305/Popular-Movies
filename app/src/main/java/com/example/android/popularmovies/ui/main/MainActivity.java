@@ -6,11 +6,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,18 +38,20 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
 
     public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie";
+    private static final String BUNDLE_RECYCLER_LAYOUT = "recycler_layout";
 
     @BindView(R.id.pb_loading_indicator)
-    ProgressBar loadingIndicator;
+    public ProgressBar loadingIndicator;
     @BindView(R.id.tv_error_message)
-    TextView errorMessageTextView;
+    public TextView errorMessageTextView;
     @BindView(R.id.rv_movie)
-    RecyclerView recyclerView;
+    public RecyclerView recyclerView;
     @BindView(R.id.layout_error)
-    LinearLayout errorLayout;
+    public LinearLayout errorLayout;
 
     private MoviesAdapter adapter;
     private MainViewModel viewModel;
+    private int mPosition = RecyclerView.NO_POSITION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +61,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         ButterKnife.bind(this);
         setupRecyclerView();
 
+        if (savedInstanceState != null) {
+            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
+        }
+
         MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
         loadMovies(sortOrder);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int lastFirstVisiblePosition = ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        outState.putInt(BUNDLE_RECYCLER_LAYOUT, lastFirstVisiblePosition);
     }
 
     @Override
@@ -134,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      */
     private void loadMovies(final String sortOrder) {
         showOnlyLoading();
+
         if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
             viewModel.getFavouriteMovieData().observe(this, new Observer<List<Movie>>() {
                 @Override
@@ -142,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                             getString(R.string.pref_sort_key));
                     if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
                         adapter.setMovies(movieLists);
+                        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+                        recyclerView.scrollToPosition(mPosition);
                         displayUI(movieLists);
                     }
                 }
@@ -151,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                 @Override
                 public void onChanged(@Nullable List<Movie> movieLists) {
                     adapter.setMovies(movieLists);
+                    if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+                    recyclerView.scrollToPosition(mPosition);
                     displayUI(movieLists);
                 }
             });

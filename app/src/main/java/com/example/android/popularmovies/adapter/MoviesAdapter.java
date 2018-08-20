@@ -78,13 +78,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
          */
         void bind(int itemIndex) {
             String posterPath = movies.get(itemIndex).getPoster();
+            String posterUrl = BASE_PATH + posterPath;
+            Picasso.get()
+                    .load(posterUrl)
+                    .placeholder(R.drawable.poster_placeholder)
+                    .error(R.drawable.no_pic)
+                    .fit()
+                    .centerCrop()
+                    .into(gridItemImageView);
 
-            if (posterPath.equals("null")) {
-                Picasso.get().load(R.drawable.no_pic).fit().centerCrop().into(gridItemImageView);
-            } else {
-                String posterUrl = BASE_PATH + posterPath;
-                Picasso.get().load(posterUrl).fit().centerCrop().into(gridItemImageView);
-            }
             titleTextView.setText(movies.get(itemIndex).getTitle());
         }
 

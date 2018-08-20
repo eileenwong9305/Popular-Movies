@@ -30,6 +30,10 @@
     <string name="pref_sort_default">@string/pref_sort_popular</string>
     <string name="action_setting">Settings</string>
     <string name="action_share">Share</string>
+    
+    <string name="remove_favourite">"Removed from Favourite"</string>
+    <string name="add_favourite">Added to Favourite</string>
+    <string name="action">Action</string>
 
     <string name="preference_key_file" translatable="false">com.example.android.popularmovies.PREFERENCE_FILE_KEY</string>
     <string name="refresh">Refresh</string>

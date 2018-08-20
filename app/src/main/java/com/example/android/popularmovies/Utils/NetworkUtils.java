@@ -34,7 +34,7 @@ import javax.net.ssl.HttpsURLConnection;
 /**
  * Utility function to communicate with themoviedb.org API and handle JSON data
  */
-public class NetworkUtils {
+public final class NetworkUtils {
 
     public static final String DETAIL_PATH = "";
     public static final String REVIEWS_PATH = "reviews";
@@ -59,6 +59,7 @@ public class NetworkUtils {
     private static final String API_KEY_PARAM = "api_key";
     private static final String API_KEY = BuildConfig.API_KEY;
 
+    private NetworkUtils() {}
     /**
      * Build url to communicate with themoviedb.org server using user-selected sort type.
      *

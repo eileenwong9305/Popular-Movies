@@ -50,41 +50,41 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private static final String BACKDROP_BASE_PATH = "http://image.tmdb.org/t/p/w500";
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
     @BindView(R.id.iv_detail_backdrop)
-    ImageView backdropImageView;
+    public ImageView backdropImageView;
     @BindView(R.id.iv_detail_poster)
-    ImageView posterImageView;
+    public ImageView posterImageView;
     @BindView(R.id.tv_detail_overview)
-    TextView overviewTextView;
+    public TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating)
-    TextView userRatingTextView;
+    public TextView userRatingTextView;
     @BindView(R.id.tv_detail_release_date)
-    TextView releaseDateTextView;
+    public TextView releaseDateTextView;
     @BindView(R.id.tv_detail_language)
-    TextView languageTextView;
+    public TextView languageTextView;
     @BindView(R.id.tv_detail_runtime)
-    TextView runtimeTextView;
+    public TextView runtimeTextView;
     @BindView(R.id.rv_review)
-    RecyclerView reviewRecyclerView;
+    public RecyclerView reviewRecyclerView;
     @BindView(R.id.rv_trailer)
-    RecyclerView trailerRecyclerView;
+    public RecyclerView trailerRecyclerView;
     @BindView(R.id.fab)
-    FloatingActionButton fab;
+    public FloatingActionButton fab;
     @BindView(R.id.rv_genre)
-    RecyclerView genreRecyclerView;
+    public RecyclerView genreRecyclerView;
     @BindView(R.id.cardview_trailer)
-    CardView trailerCardView;
+    public CardView trailerCardView;
     @BindView(R.id.cardview_reviews)
-    CardView reviewCardView;
+    public CardView reviewCardView;
     @BindView(R.id.collapsing_toolbar_layout)
-    CollapsingToolbarLayout collapsingToolbarLayout;
+    public CollapsingToolbarLayout collapsingToolbarLayout;
     @BindView(R.id.pb_loading_indicator_detail)
-    ProgressBar loadingIndicator;
+    public ProgressBar loadingIndicator;
     @BindView(R.id.tv_error_message_detail)
-    TextView errorMessage;
+    public TextView errorMessage;
     @BindView(R.id.scroll)
-    NestedScrollView movieDetailContent;
+    public NestedScrollView movieDetailContent;
     @BindView(R.id.collapsing_toolbar)
-    Toolbar toolbar;
+    public Toolbar toolbar;
     private FavouriteMovie movieDetails;
     private List<Review> movieReviews;
     private List<Trailer> movieTrailers;
@@ -124,14 +124,14 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                     viewModel.deleteSingleMovie(movieId);
                     addToFavourite = false;
 
-                    Snackbar.make(view, "Removed from Favourite", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Snackbar.make(view, R.string.remove_favourite, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.action, null).show();
                 } else {
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                     viewModel.insertFavourite(movieDetails, movieReviews, movieTrailers);
                     addToFavourite = true;
-                    Snackbar.make(view, "Added to Favourite", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Snackbar.make(view, getString(R.string.add_favourite), Snackbar.LENGTH_LONG)
+                            .setAction(R.string.action, null).show();
                 }
             }
         });
