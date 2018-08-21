@@ -7,10 +7,13 @@ import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.AppBarLayout;
+import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
@@ -57,6 +61,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     public TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating)
     public TextView userRatingTextView;
+    @BindView(R.id.rating_bar)
+    RatingBar ratingBar;
     @BindView(R.id.tv_detail_release_date)
     public TextView releaseDateTextView;
     @BindView(R.id.tv_detail_language)
@@ -77,6 +83,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     public CardView reviewCardView;
     @BindView(R.id.collapsing_toolbar_layout)
     public CollapsingToolbarLayout collapsingToolbarLayout;
+    @BindView(R.id.collapsing_toolbar_appbarlayout)
+    public AppBarLayout collapsingAppBarLayout;
     @BindView(R.id.pb_loading_indicator_detail)
     public ProgressBar loadingIndicator;
     @BindView(R.id.tv_error_message_detail)
@@ -85,6 +93,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     public NestedScrollView movieDetailContent;
     @BindView(R.id.collapsing_toolbar)
     public Toolbar toolbar;
+    @BindView(R.id.coordinator)
+    public CoordinatorLayout coordinatorLayout;
+
     private FavouriteMovie movieDetails;
     private List<Review> movieReviews;
     private List<Trailer> movieTrailers;
@@ -262,6 +273,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
         overviewTextView.setText(movieDetails.getOverview());
         userRatingTextView.setText(movieDetails.getUserRating());
+        float userRating = Float.valueOf(movieDetails.getUserRating());
+        ratingBar.setRating(userRating/2);
         releaseDateTextView.setText(movieDetails.getReleaseDate());
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
         languageTextView.setText(movieDetails.getLanguage());

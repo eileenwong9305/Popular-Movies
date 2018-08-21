@@ -25,4 +25,10 @@
     <dimen name="rating_bottom_margin">40dp</dimen>
     <dimen name="item_spacing">8dp</dimen>
     <dimen name="card_corner_radius">5dp</dimen>
+    <dimen name="expanded_title_bottom_margin">40dp</dimen>
+    <dimen name="expanded_title_horizontal_margin">16dp</dimen>
+    <dimen name="rating_bar_bottom_margin">36dp</dimen>
+    <dimen name="zero_size">0dp</dimen>
+    <dimen name="overview_line_space_extra">3dp</dimen>
+
 </resources>
