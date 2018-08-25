@@ -65,7 +65,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
-        loadMovies(sortOrder);
+//        viewModel.setPreference(sortOrder);
+        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movieLists) {
+                adapter.setMovies(movieLists);
+//                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+//                recyclerView.scrollToPosition(mPosition);
+                displayUI(movieLists);
+            }
+        });
+//        loadMovies(sortOrder);
     }
 
     @Override
@@ -103,7 +113,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
-                            loadMovies(itemValue.get(i));
+//                            viewModel.setPreference(itemValue.get(i));
+                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<Movie>>() {
+                                @Override
+                                public void onChanged(@Nullable List<Movie> movieLists) {
+                                    adapter.setMovies(movieLists);
+                                    if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+                                    recyclerView.scrollToPosition(mPosition);
+                                    displayUI(movieLists);
+                                }
+                            });
+//                            loadMovies(itemValue.get(i));
                             dialogInterface.dismiss();
                         }
                     });
@@ -121,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      */
     public void refreshView(View v) {
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
-        loadMovies(sortOrder);
+//        viewModel.setPreference(sortOrder);
+//        loadMovies(sortOrder);
     }
 
     /**

@@ -22,6 +22,12 @@ public interface MovieDao {
     @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
     LiveData<List<Movie>> loadAllCurrentMovies();
 
+    @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
+    List<Movie> loadAllFavouriteMoviesN();
+
+    @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
+    List<Movie> loadAllCurrentMoviesN();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void bulkInsert(List<Movie> movies);
 

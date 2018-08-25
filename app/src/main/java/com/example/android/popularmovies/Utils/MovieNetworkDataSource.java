@@ -40,16 +40,19 @@ public class MovieNetworkDataSource {
             public void run() {
                 if (NetworkUtils.isOnline()) {
                     try {
+                        Log.e("NetworkDataSource", "fetch Movie");
                         URL queryUrl = NetworkUtils.buildUrl(sortOrder);
                         String json = NetworkUtils.getResponseFromHttp(queryUrl);
                         List<Movie> movies = NetworkUtils.parseMovieJson(json);
                         if (movies != null) {
+                            Log.e("NetworkDataSource", "post Movie");
                             downloadedMovieData.postValue(movies);
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 } else {
+                    Log.e("NetworkDataSource", "null");
                     downloadedMovieData.postValue(null);
                 }
             }

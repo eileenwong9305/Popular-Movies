@@ -28,6 +28,7 @@ public class MovieRepository {
     private MutableLiveData<FavouriteMovie> movieDetails;
     private MutableLiveData<List<Trailer>> movieTrailers;
     private MutableLiveData<List<Review>> movieReviews;
+    private MutableLiveData<List<Movie>> movieList;
 
     private MovieRepository(MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor) {
         movieDao = dao;
@@ -41,13 +42,18 @@ public class MovieRepository {
                     @Override
                     public void run() {
                         movieDao.deleteOldData();
+                        if(movieLists == null){
+                            Log.e("MovieRepo", "null");
+                        }
                         if (movieLists != null) {
+                            Log.e("MovieRepo", "insert movielist");
                             movieDao.bulkInsert(movieLists);
                         }
                     }
                 });
             }
         });
+        movieList = new MutableLiveData<>();
         movieDetails = new MutableLiveData<>();
         movieTrailers = new MutableLiveData<>();
         movieReviews = new MutableLiveData<>();
@@ -62,6 +68,46 @@ public class MovieRepository {
             }
         }
         return sInstance;
+    }
+    public void loadMovieList(final String sortOrder) {
+        appExecutor.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (sortOrder.equals("favourites")) {
+                    movieList.postValue(movieDao.loadAllFavouriteMoviesN());
+                } else {
+//                    movieNetworkDataSource.fetchMovie(sortOrder);
+//                    movieList.postValue(movieDao.loadAllCurrentMoviesN());
+                    appExecutor.networkIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (NetworkUtils.isOnline()) {
+                                try {
+                                    Log.e("NetworkDataSource", "fetch Movie");
+                                    URL queryUrl = NetworkUtils.buildUrl(sortOrder);
+                                    String json = NetworkUtils.getResponseFromHttp(queryUrl);
+                                    List<Movie> movies = NetworkUtils.parseMovieJson(json);
+                                    if (movies != null) {
+                                        Log.e("NetworkDataSource", "post Movie");
+                                        movieList.postValue(movies);
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            } else {
+                                Log.e("NetworkDataSource", "null");
+                                movieList.postValue(null);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public LiveData<List<Movie>> getMovieList(String sortOrder) {
+        loadMovieList(sortOrder);
+        return movieList;
     }
 
     public LiveData<List<Movie>> getOtherMovieData(String sortOrder) {
