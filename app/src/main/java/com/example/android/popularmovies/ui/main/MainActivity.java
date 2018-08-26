@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.Utils.InjectorUtils;
 import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
@@ -58,17 +59,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         ButterKnife.bind(this);
         setupRecyclerView();
 
-        if (savedInstanceState != null) {
-            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
-        }
+//        if (savedInstanceState != null) {
+//            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
+//        }
 
         MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
         viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
 //        viewModel.setPreference(sortOrder);
-        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<Movie>>() {
+        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
             @Override
-            public void onChanged(@Nullable List<Movie> movieLists) {
+            public void onChanged(@Nullable List<MovieList> movieLists) {
                 adapter.setMovies(movieLists);
 //                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
 //                recyclerView.scrollToPosition(mPosition);
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     }
 
     @Override
-    public void onClick(Movie movie) {
+    public void onClick(MovieList movie) {
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra(KEY_SELECTED_MOVIE_ID_INTENT, movie.getMovieId());
         startActivity(intent);
@@ -114,9 +115,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                         public void onClick(DialogInterface dialogInterface, int i) {
                             SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
 //                            viewModel.setPreference(itemValue.get(i));
-                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<Movie>>() {
+                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<MovieList>>() {
                                 @Override
-                                public void onChanged(@Nullable List<Movie> movieLists) {
+                                public void onChanged(@Nullable List<MovieList> movieLists) {
                                     adapter.setMovies(movieLists);
                                     if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
                                     recyclerView.scrollToPosition(mPosition);
@@ -170,9 +171,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         showOnlyLoading();
 
         if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
-            viewModel.getFavouriteMovieData().observe(this, new Observer<List<Movie>>() {
+            viewModel.getFavouriteMovieData().observe(this, new Observer<List<MovieList>>() {
                 @Override
-                public void onChanged(@Nullable List<Movie> movieLists) {
+                public void onChanged(@Nullable List<MovieList> movieLists) {
                     String currentSort = SharedPreferenceHelper.getSortPreferenceValue(MainActivity.this,
                             getString(R.string.pref_sort_key));
                     if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
@@ -184,9 +185,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                 }
             });
         } else {
-            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<Movie>>() {
+            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<MovieList>>() {
                 @Override
-                public void onChanged(@Nullable List<Movie> movieLists) {
+                public void onChanged(@Nullable List<MovieList> movieLists) {
                     adapter.setMovies(movieLists);
                     if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
                     recyclerView.scrollToPosition(mPosition);
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      *
      * @param movieLists list of movies
      */
-    private void displayUI(List<Movie> movieLists) {
+    private void displayUI(List<MovieList> movieLists) {
         if (movieLists != null && movieLists.size() != 0) {
             showMovieData();
         } else {

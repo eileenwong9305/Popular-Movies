@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
     private static final String BASE_PATH = "http://image.tmdb.org/t/p/w342";
-    private List<Movie> movies;
+    private List<MovieList> movies;
     private GridItemListener listener;
 
     public MoviesAdapter(GridItemListener listener) {
@@ -50,13 +51,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      *
      * @param movies movie data to be displayed
      */
-    public void setMovies(List<Movie> movies) {
+    public void setMovies(List<MovieList> movies) {
         this.movies = movies;
         notifyDataSetChanged();
     }
 
     public interface GridItemListener {
-        void onClick(Movie movie);
+        void onClick(MovieList movie);
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

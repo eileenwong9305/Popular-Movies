@@ -8,6 +8,7 @@ import android.arch.persistence.room.Query;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
 
@@ -17,16 +18,19 @@ import java.util.List;
 public interface MovieDao {
 
     @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
-    LiveData<List<Movie>> loadAllFavouriteMovies();
+    LiveData<List<MovieList>> loadAllFavouriteMovies();
 
     @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
-    LiveData<List<Movie>> loadAllCurrentMovies();
+    LiveData<List<MovieList>> loadAllCurrentMovies();
 
     @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
-    List<Movie> loadAllFavouriteMoviesN();
+    List<MovieList> loadAllFavouriteMoviesN();
 
     @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
-    List<Movie> loadAllCurrentMoviesN();
+    List<MovieList> loadAllCurrentMoviesN();
+
+    @Query("SELECT COUNT(*) FROM current_movie WHERE sort = :sort AND updated_at < :updatedAt")
+    int hasMovie(String sort, long updatedAt);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void bulkInsert(List<Movie> movies);

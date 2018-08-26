@@ -15,12 +15,17 @@ public class Movie {
     private String poster;
     @ColumnInfo(name = "movie_id")
     private int movieId;
+    private String sort;
+    @ColumnInfo(name = "updated_at")
+    private long updatedAt;
 
-    public Movie(int id, String title, String poster, int movieId) {
+    public Movie(int id, String title, String poster, int movieId, String sort, long updatedAt) {
         this.id = id;
         this.title = title;
         this.poster = poster;
         this.movieId = movieId;
+        this.sort = sort;
+        this.updatedAt = updatedAt;
     }
 
     @Ignore
@@ -46,4 +51,19 @@ public class Movie {
         return movieId;
     }
 
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

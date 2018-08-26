@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
+import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
 import com.example.android.popularmovies.Database.MovieDao;
@@ -16,6 +17,7 @@ import com.example.android.popularmovies.Utils.MovieNetworkDataSource;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieRepository {
@@ -28,7 +30,7 @@ public class MovieRepository {
     private MutableLiveData<FavouriteMovie> movieDetails;
     private MutableLiveData<List<Trailer>> movieTrailers;
     private MutableLiveData<List<Review>> movieReviews;
-    private MutableLiveData<List<Movie>> movieList;
+    private MutableLiveData<List<MovieList>> mMovieList;
 
     private MovieRepository(MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor) {
         movieDao = dao;
@@ -53,7 +55,7 @@ public class MovieRepository {
                 });
             }
         });
-        movieList = new MutableLiveData<>();
+        mMovieList = new MutableLiveData<>();
         movieDetails = new MutableLiveData<>();
         movieTrailers = new MutableLiveData<>();
         movieReviews = new MutableLiveData<>();
@@ -74,48 +76,61 @@ public class MovieRepository {
             @Override
             public void run() {
                 if (sortOrder.equals("favourites")) {
-                    movieList.postValue(movieDao.loadAllFavouriteMoviesN());
+                    mMovieList.postValue(movieDao.loadAllFavouriteMoviesN());
                 } else {
-//                    movieNetworkDataSource.fetchMovie(sortOrder);
-//                    movieList.postValue(movieDao.loadAllCurrentMoviesN());
-                    appExecutor.networkIO().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (NetworkUtils.isOnline()) {
-                                try {
-                                    Log.e("NetworkDataSource", "fetch Movie");
-                                    URL queryUrl = NetworkUtils.buildUrl(sortOrder);
-                                    String json = NetworkUtils.getResponseFromHttp(queryUrl);
-                                    List<Movie> movies = NetworkUtils.parseMovieJson(json);
-                                    if (movies != null) {
-                                        Log.e("NetworkDataSource", "post Movie");
-                                        movieList.postValue(movies);
+                    final long timeNow = System.currentTimeMillis();
+                    long maxLastUpdatedAt = timeNow - 60000;
+                    if (movieDao.hasMovie(sortOrder, maxLastUpdatedAt) < 1) {
+                        appExecutor.networkIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (NetworkUtils.isOnline()) {
+                                    try {
+                                        Log.e("NetworkDataSource", "fetch Movie");
+                                        URL queryUrl = NetworkUtils.buildUrl(sortOrder);
+                                        String json = NetworkUtils.getResponseFromHttp(queryUrl);
+                                        List<Movie> movies = NetworkUtils.parseMovieJson(json);
+                                        List<MovieList> movieList = new ArrayList<MovieList>();
+                                        for (Movie movie: movies) {
+                                            movie.setSort(sortOrder);
+                                            movie.setUpdatedAt(timeNow);
+                                            movieList.add(new MovieList(movie.getId(), movie.getTitle(), movie.getPoster(), movie.getMovieId()));
+                                        }
+                                        mMovieList.postValue(movieList);
+                                        movieDao.deleteOldData();
+                                        if(movies == null){
+                                            Log.e("MovieRepo", "null");
+                                        } else {
+                                            Log.e("MovieRepo", "insert movielist");
+                                            movieDao.bulkInsert(movies);
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
                                     }
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                } else {
+                                    Log.e("NetworkDataSource", "null");
                                 }
-                            } else {
-                                Log.e("NetworkDataSource", "null");
-                                movieList.postValue(null);
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        mMovieList.postValue(movieDao.loadAllCurrentMoviesN());
+                    }
                 }
             }
         });
     }
 
-    public LiveData<List<Movie>> getMovieList(String sortOrder) {
+    public LiveData<List<MovieList>> getMovieList(String sortOrder) {
         loadMovieList(sortOrder);
-        return movieList;
+        return mMovieList;
     }
 
-    public LiveData<List<Movie>> getOtherMovieData(String sortOrder) {
+    public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
         movieNetworkDataSource.fetchMovie(sortOrder);
         return movieDao.loadAllCurrentMovies();
     }
 
-    public LiveData<List<Movie>> getFavouriteMovieData() {
+    public LiveData<List<MovieList>> getFavouriteMovieData() {
         return movieDao.loadAllFavouriteMovies();
     }
 
