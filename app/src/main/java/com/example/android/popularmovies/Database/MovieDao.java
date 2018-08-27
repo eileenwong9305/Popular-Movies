@@ -17,16 +17,16 @@ import java.util.List;
 @Dao
 public interface MovieDao {
 
-    @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
+    @Query("SELECT title, poster, movie_id FROM favourite_movie ORDER BY id")
     LiveData<List<MovieList>> loadAllFavouriteMovies();
 
-    @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
+    @Query("SELECT title, poster, movie_id FROM current_movie ORDER BY id")
     LiveData<List<MovieList>> loadAllCurrentMovies();
 
-    @Query("SELECT id, title, poster, movie_id FROM favourite_movie ORDER BY id")
+    @Query("SELECT title, poster, movie_id FROM favourite_movie ORDER BY id")
     List<MovieList> loadAllFavouriteMoviesN();
 
-    @Query("SELECT id, title, poster, movie_id FROM current_movie ORDER BY id")
+    @Query("SELECT title, poster, movie_id FROM current_movie ORDER BY id")
     List<MovieList> loadAllCurrentMoviesN();
 
     @Query("SELECT COUNT(*) FROM current_movie WHERE sort = :sort AND updated_at < :updatedAt")

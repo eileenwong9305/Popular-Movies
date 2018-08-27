@@ -9,6 +9,7 @@ import android.util.Log;
 import com.example.android.popularmovies.Data.FavouriteMovie;
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
+import com.example.android.popularmovies.Data.MovieListResponse;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
 import com.example.android.popularmovies.Database.MovieDao;
@@ -20,19 +21,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Response;
+
 public class MovieRepository {
 
     private static final Object LOCK = new Object();
     private static MovieRepository sInstance;
-    private MovieDao movieDao;
-    private MovieNetworkDataSource movieNetworkDataSource;
-    private AppExecutor appExecutor;
+    private final MovieDBService mMovieDBService;
+    private final MovieDao movieDao;
+    private final MovieNetworkDataSource movieNetworkDataSource;
+    private final AppExecutor appExecutor;
     private MutableLiveData<FavouriteMovie> movieDetails;
     private MutableLiveData<List<Trailer>> movieTrailers;
     private MutableLiveData<List<Review>> movieReviews;
     private MutableLiveData<List<MovieList>> mMovieList;
 
-    private MovieRepository(MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor) {
+    private MovieRepository(MovieDBService movieDBService, MovieDao dao, MovieNetworkDataSource networkDataSource, AppExecutor executor) {
+        mMovieDBService = movieDBService;
         movieDao = dao;
         movieNetworkDataSource = networkDataSource;
         appExecutor = executor;
@@ -61,12 +66,12 @@ public class MovieRepository {
         movieReviews = new MutableLiveData<>();
     }
 
-    public synchronized static MovieRepository getInstance(MovieDao dao,
+    public synchronized static MovieRepository getInstance(MovieDBService movieDBService, MovieDao dao,
                                                            MovieNetworkDataSource networkDataSource,
                                                            AppExecutor executor) {
         if (sInstance == null) {
             synchronized (LOCK) {
-                sInstance = new MovieRepository(dao, networkDataSource, executor);
+                sInstance = new MovieRepository(movieDBService, dao, networkDataSource, executor);
             }
         }
         return sInstance;
@@ -94,7 +99,7 @@ public class MovieRepository {
                                         for (Movie movie: movies) {
                                             movie.setSort(sortOrder);
                                             movie.setUpdatedAt(timeNow);
-                                            movieList.add(new MovieList(movie.getId(), movie.getTitle(), movie.getPoster(), movie.getMovieId()));
+                                            movieList.add(new MovieList(movie.getTitle(), movie.getPoster(), movie.getMovieId()));
                                         }
                                         mMovieList.postValue(movieList);
                                         movieDao.deleteOldData();
@@ -120,8 +125,65 @@ public class MovieRepository {
         });
     }
 
+    public void loadMovieListRetro(final String sortOrder) {
+        appExecutor.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (sortOrder.equals("favourites")) {
+                    mMovieList.postValue(movieDao.loadAllFavouriteMoviesN());
+                } else {
+                    final long timeNow = System.currentTimeMillis();
+                    long maxLastUpdatedAt = timeNow - 60000;
+                    Log.e("Count", String.valueOf(movieDao.hasMovie(sortOrder, maxLastUpdatedAt)));
+                    if (movieDao.hasMovie(sortOrder, maxLastUpdatedAt) < 1) {
+                        appExecutor.networkIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (NetworkUtils.isOnline()) {
+                                    try {
+                                        Log.e("Retrofit", "fetch Movie");
+                                        Log.e("Retrofit", mMovieDBService.getMovie(sortOrder, BuildConfig.API_KEY).request().url().toString());
+                                        Response<MovieListResponse> response = mMovieDBService.getMovie(sortOrder, BuildConfig.API_KEY).execute();
+                                        Log.e("Retrofit", String.valueOf(response.code()));
+                                        MovieListResponse moviesResponse = response.body();
+                                        List<MovieList> movieList = moviesResponse.getResults();
+                                        Log.e("Retrofit", movieList.toString());
+
+                                        mMovieList.postValue(movieList);
+                                        List<Movie> movies = new ArrayList<Movie>();
+                                        for (MovieList movie: movieList) {
+                                            movies.add(new Movie(movie.getTitle(), movie.getPoster(), movie.getMovieId(), sortOrder, timeNow));
+                                        }
+                                        Log.e("movie sort", String.valueOf(movies.get(1).getSort()));
+                                        Log.e("movie time", String.valueOf(movies.get(1).getUpdatedAt()));
+                                        movieDao.deleteOldData();
+                                        Log.e("MovieDao", "delete");
+                                        if(movies == null){
+                                            Log.e("MovieRepo", "null");
+                                        } else {
+                                            Log.e("MovieRepo", "insert movielist");
+                                            movieDao.bulkInsert(movies);
+                                            Log.e("MovieRepo", "finish insert");
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                } else {
+                                    Log.e("NetworkDataSource", "null");
+                                }
+                            }
+                        });
+                    } else {
+                        mMovieList.postValue(movieDao.loadAllCurrentMoviesN());
+                    }
+                }
+            }
+        });
+    }
+
     public LiveData<List<MovieList>> getMovieList(String sortOrder) {
-        loadMovieList(sortOrder);
+//        loadMovieList(sortOrder);
+        loadMovieListRetro(sortOrder);
         return mMovieList;
     }
 

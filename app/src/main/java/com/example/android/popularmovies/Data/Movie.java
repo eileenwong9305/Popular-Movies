@@ -35,6 +35,15 @@ public class Movie {
         this.movieId = movieId;
     }
 
+    @Ignore
+    public Movie(String title, String poster, int movieId, String sort, long updatedAt) {
+        this.title = title;
+        this.poster = poster;
+        this.movieId = movieId;
+        this.sort = sort;
+        this.updatedAt = updatedAt;
+    }
+
     public String getTitle() {
         return title;
     }
