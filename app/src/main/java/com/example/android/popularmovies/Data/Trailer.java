@@ -4,19 +4,31 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "trailer")
 public class Trailer {
-
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey
+    @NonNull
+    @SerializedName("id")
+    @Expose
+    private String id;
+    @SerializedName("key")
+    @Expose
     private String videoKey;
+    @SerializedName("name")
+    @Expose
     private String title;
+    @SerializedName("type")
+    @Expose
     private String type;
     @ColumnInfo(name = "movie_id")
     private int movieId;
 
-    public Trailer(int id, String videoKey, String title, String type, int movieId) {
+    public Trailer(String id, String videoKey, String title, String type, int movieId) {
         this.id = id;
         this.videoKey = videoKey;
         this.title = title;
@@ -32,8 +44,8 @@ public class Trailer {
         this.movieId = movieId;
     }
 
-    public int getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
     public String getVideoKey() {
@@ -50,5 +62,25 @@ public class Trailer {
 
     public int getMovieId() {
         return movieId;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 }

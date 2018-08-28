@@ -14,26 +14,26 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     private static Retrofit retrofit;
-    private static MovieDBService movieDBService;
+    private static ApiInterface apiInterface;
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String API_KEY_PARAM = "api_key";
     private static final String API_KEY = BuildConfig.API_KEY;
 
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
-            OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
-                    .addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request original = chain.request();
-                            HttpUrl originalHttpUrl = original.url();
-                            HttpUrl newHttpUrl = originalHttpUrl.newBuilder()
-                                    .setQueryParameter(API_KEY, API_KEY_PARAM)
-                                    .build();
-                            Request request = original.newBuilder().url(newHttpUrl).build();
-                            return chain.proceed(request);
-                        }
-                    });
+            OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+            httpClient.addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request original = chain.request();
+                    HttpUrl originalHttpUrl = original.url();
+                    HttpUrl newHttpUrl = originalHttpUrl.newBuilder()
+                            .setQueryParameter(API_KEY, API_KEY_PARAM)
+                            .build();
+                    Request request = original.newBuilder().url(newHttpUrl).build();
+                    return chain.proceed(request);
+                }
+            });
             OkHttpClient client = httpClient.build();
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
@@ -43,21 +43,12 @@ public class ApiClient {
         }
         return retrofit;
     }
-//    public static Retrofit getRetrofitInstance() {
-//        if (retrofit == null) {
-//            retrofit = new Retrofit.Builder()
-//                    .baseUrl(BASE_URL)
-//                    .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().create()))
-//                    .build();
-//        }
-//        return retrofit;
-//    }
 
-    public static MovieDBService getMovieDBServiceInstance() {
-        if (movieDBService == null) {
-            movieDBService = getRetrofitInstance().create(MovieDBService.class);
+    public static ApiInterface getMovieDBServiceInstance() {
+        if (apiInterface == null) {
+            apiInterface = getRetrofitInstance().create(ApiInterface.class);
         }
-        return movieDBService;
+        return apiInterface;
     }
 
 }

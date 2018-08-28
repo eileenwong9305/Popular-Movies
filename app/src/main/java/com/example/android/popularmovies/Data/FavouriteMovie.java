@@ -9,6 +9,8 @@ import android.arch.persistence.room.TypeConverters;
 import android.util.Log;
 
 import com.example.android.popularmovies.Database.GenreConverter;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -21,27 +23,47 @@ import java.util.Locale;
 @Entity(tableName = "favourite_movie", indices = {@Index(value = {"movie_id"}, unique = true)})
 public class FavouriteMovie {
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    @ColumnInfo(name = "id")
+    private int _id;
+    @SerializedName("title")
+    @Expose
     private String title;
+    @SerializedName("poster_path")
+    @Expose
     private String poster;
+    @SerializedName("overview")
+    @Expose
     private String overview;
+    @SerializedName("vote_average")
+    @Expose
     @ColumnInfo(name = "user_rating")
     private String userRating;
+    @SerializedName("release_date")
+    @Expose
     @ColumnInfo(name = "release_date")
     private String releaseDate;
+    @SerializedName("backdrop_path")
+    @Expose
     private String backdrop;
+    @SerializedName("id")
+    @Expose
     @ColumnInfo(name = "movie_id")
     private int movieId;
-
+    @SerializedName("genres")
+    @Expose
     @TypeConverters(GenreConverter.class)
-    private List<String> genres;
+    private List<Genre> genres;
+    @SerializedName("runtime")
+    @Expose
     private String runtime;
+    @SerializedName("original_language")
+    @Expose
     private String language;
 
 
     public FavouriteMovie(int id, String title, String poster, String overview, String userRating,
-                          String releaseDate, String backdrop, int movieId, List<String> genres, String runtime, String language) {
-        this.id = id;
+                          String releaseDate, String backdrop, int movieId, List<Genre> genres, String runtime, String language) {
+        this._id = id;
         this.title = title;
         this.poster = poster;
         this.overview = overview;
@@ -56,7 +78,7 @@ public class FavouriteMovie {
 
     @Ignore
     public FavouriteMovie(String title, String poster, String overview, String userRating,
-                          String releaseDate, String backdrop, int movieId, List<String> genres,
+                          String releaseDate, String backdrop, int movieId, List<Genre> genres,
                           String runtime, String language) {
         this.title = title;
         this.poster = poster;
@@ -90,11 +112,11 @@ public class FavouriteMovie {
     }
 
     public int getId() {
-        return id;
+        return _id;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this._id = id;
     }
 
     public String getOverview() {
@@ -153,11 +175,11 @@ public class FavouriteMovie {
         this.movieId = movieId;
     }
 
-    public List<String> getGenres() {
+    public List<Genre> getGenres() {
         return genres;
     }
 
-    public void setGenres(ArrayList<String> genres) {
+    public void setGenres(ArrayList<Genre> genres) {
         this.genres = genres;
     }
 
@@ -171,5 +193,13 @@ public class FavouriteMovie {
 
     public String getLanguage() {
         return language;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

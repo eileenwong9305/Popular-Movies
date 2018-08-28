@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.ui.detail;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -32,8 +33,11 @@ import android.widget.TextView;
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
 import com.example.android.popularmovies.Data.FavouriteMovie;
+import com.example.android.popularmovies.Data.Genre;
 import com.example.android.popularmovies.Data.Review;
 import com.example.android.popularmovies.Data.Trailer;
+import com.example.android.popularmovies.MovieApplication;
+import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.Utils.AppExecutor;
 import com.example.android.popularmovies.Utils.InjectorUtils;
@@ -45,8 +49,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.AndroidInjection;
+import dagger.multibindings.IntoMap;
 
 public class DetailActivity extends AppCompatActivity implements TrailersAdapter.TrailerClickListener {
 
@@ -103,14 +111,21 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private ReviewsAdapter reviewsAdapter;
     private TrailersAdapter trailersAdapter;
     private GenreAdapter genreAdapter;
-    private DetailViewModel viewModel;
     private boolean addToFavourite = false;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+    private DetailViewModel viewModel;
+
+    @Inject
+    AppExecutor appExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        AndroidInjection.inject(this);
         Intent intent = getIntent();
         if (intent != null) {
             if (intent.hasExtra(MainActivity.KEY_SELECTED_MOVIE_ID_INTENT)) {
@@ -123,8 +138,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         setupRecyclerView();
 
         showOnlyLoading();
-        DetailViewModelFactory factory = new DetailViewModelFactory(InjectorUtils.provideRepository(this));
-        viewModel = ViewModelProviders.of(this, factory).get(DetailViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetailViewModel.class);
         displayMovieInfo();
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +229,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
      * Load movie information
      */
     private void displayMovieInfo() {
-        AppExecutor.getInstance().diskIO().execute(new Runnable() {
+        appExecutor.diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 if (viewModel.containMovieId(movieId)) {
@@ -278,7 +292,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         releaseDateTextView.setText(movieDetails.getReleaseDate());
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
         languageTextView.setText(movieDetails.getLanguage());
-        List<String> genres = movieDetails.getGenres();
+        List<Genre> genres = movieDetails.getGenres();
         genreAdapter.setGenres(genres);
     }
 

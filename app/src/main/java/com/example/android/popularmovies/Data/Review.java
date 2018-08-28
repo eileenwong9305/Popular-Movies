@@ -4,18 +4,29 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "review")
 public class Review {
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey
+    @NonNull
+    @SerializedName("id")
+    @Expose
+    private String id;
+    @SerializedName("author")
+    @Expose
     private String author;
+    @SerializedName("content")
+    @Expose
     private String content;
     @ColumnInfo(name = "movie_id")
     private int movieId;
 
-    public Review(int id, String author, String content, int movieId) {
+    public Review(String id, String author, String content, int movieId) {
         this.id = id;
         this.author = author;
         this.content = content;
@@ -29,7 +40,7 @@ public class Review {
         this.movieId = movieId;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -43,5 +54,9 @@ public class Review {
 
     public int getMovieId() {
         return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 }

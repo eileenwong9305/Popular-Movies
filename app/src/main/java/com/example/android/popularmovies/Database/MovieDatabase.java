@@ -14,19 +14,19 @@ import com.example.android.popularmovies.Data.Trailer;
 
 @Database(entities = {FavouriteMovie.class, Movie.class, Review.class, Trailer.class}, version = 1, exportSchema = false)
 @TypeConverters(GenreConverter.class)
-public abstract class FavouriteDatabase extends RoomDatabase {
+public abstract class MovieDatabase extends RoomDatabase {
 
-    private static final String LOG_TAG = FavouriteDatabase.class.getSimpleName();
+    private static final String LOG_TAG = MovieDatabase.class.getSimpleName();
     private static final Object LOCK = new Object();
-    private static final String DATABASE_NAME = "movies";
-    private static FavouriteDatabase sInstance;
+    public static final String DATABASE_NAME = "movies";
+    private static MovieDatabase sInstance;
 
-    public static FavouriteDatabase getInstance(Context context) {
+    public static MovieDatabase getInstance(Context context) {
         if (sInstance == null) {
             synchronized (LOCK) {
                 Log.d(LOG_TAG, "Creating new database instance");
                 sInstance = Room.databaseBuilder(context.getApplicationContext(),
-                        FavouriteDatabase.class, FavouriteDatabase.DATABASE_NAME)
+                        MovieDatabase.class, MovieDatabase.DATABASE_NAME)
                         .build();
             }
         }
@@ -34,5 +34,5 @@ public abstract class FavouriteDatabase extends RoomDatabase {
         return sInstance;
     }
 
-    public abstract MovieDao favouriteDao();
+    public abstract MovieDao movieDao();
 }

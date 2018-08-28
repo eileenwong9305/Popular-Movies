@@ -10,10 +10,13 @@ import com.example.android.popularmovies.MovieRepository;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class DetailViewModel extends ViewModel {
 
     private MovieRepository repository;
 
+    @Inject
     public DetailViewModel(MovieRepository repository) {
         this.repository = repository;
     }

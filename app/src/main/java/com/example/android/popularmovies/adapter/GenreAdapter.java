@@ -8,13 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.popularmovies.Data.Genre;
 import com.example.android.popularmovies.R;
 
 import java.util.List;
 
 public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHolder> {
 
-    private List<String> genres;
+    private List<Genre> genres;
 
     @NonNull
     @Override
@@ -35,7 +36,7 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHol
         return genres.size();
     }
 
-    public void setGenres(List<String> genres) {
+    public void setGenres(List<Genre> genres) {
         this.genres = genres;
         notifyDataSetChanged();
     }
@@ -50,7 +51,7 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHol
         }
 
         void bind(int itemIndex) {
-            genreTextView.setText(genres.get(itemIndex));
+            genreTextView.setText(genres.get(itemIndex).getName());
         }
     }
 }

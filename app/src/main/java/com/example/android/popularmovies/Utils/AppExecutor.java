@@ -7,6 +7,10 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class AppExecutor {
 
     private static final Object LOCK = new Object();
@@ -21,16 +25,22 @@ public class AppExecutor {
         this.mainThread = mainThread;
     }
 
-    public static AppExecutor getInstance() {
-        if (sInstance == null) {
-            synchronized (LOCK) {
-                sInstance = new AppExecutor(Executors.newSingleThreadExecutor(),
-                        Executors.newFixedThreadPool(3),
-                        new MainThreadExecutor());
-            }
-        }
-        return sInstance;
+    @Inject
+    public AppExecutor() {
+        this(Executors.newSingleThreadExecutor(),
+                Executors.newFixedThreadPool(3),
+                new MainThreadExecutor());
     }
+//    public static AppExecutor getInstance() {
+//        if (sInstance == null) {
+//            synchronized (LOCK) {
+//                sInstance = new AppExecutor(Executors.newSingleThreadExecutor(),
+//                        Executors.newFixedThreadPool(3),
+//                        new MainThreadExecutor());
+//            }
+//        }
+//        return sInstance;
+//    }
 
     public Executor diskIO() {
         return diskIO;
@@ -46,7 +56,7 @@ public class AppExecutor {
 
     private static class MainThreadExecutor implements Executor {
         private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-
+        @Override
         public void execute(@NonNull Runnable command) {
             mainThreadHandler.post(command);
         }

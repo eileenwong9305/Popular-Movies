@@ -10,11 +10,14 @@ import com.example.android.popularmovies.MovieRepository;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class MainViewModel extends ViewModel {
 
     private MovieRepository repository;
     private LiveData<List<MovieList>> movieList;
 
+    @Inject
     public MainViewModel(MovieRepository repository) {
         this.repository = repository;
     }
@@ -31,11 +34,4 @@ public class MainViewModel extends ViewModel {
         return repository.getMovieList(sortOrder);
     }
 
-    public LiveData<List<MovieList>> getOtherMovieData(String sortOrder) {
-        return repository.getOtherMovieData(sortOrder);
-    }
-
-    public LiveData<List<MovieList>> getFavouriteMovieData() {
-        return repository.getFavouriteMovieData();
-    }
 }

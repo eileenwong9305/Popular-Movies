@@ -1,6 +1,7 @@
 package com.example.android.popularmovies.ui.main;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 
 import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
+import com.example.android.popularmovies.MovieApplication;
+import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.Utils.InjectorUtils;
 import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
@@ -30,8 +34,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
 
@@ -48,14 +56,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     public LinearLayout errorLayout;
 
     private MoviesAdapter adapter;
-    private MainViewModel viewModel;
+
     private int mPosition = RecyclerView.NO_POSITION;
+
+    @Inject
+    MovieRepository movieRepository;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        AndroidInjection.inject(this);
         ButterKnife.bind(this);
         setupRecyclerView();
 
@@ -63,13 +78,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
 //            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
 //        }
 
-        MainViewModelFactory factory = InjectorUtils.provideMainViewModelFactory(this.getApplicationContext());
-        viewModel = ViewModelProviders.of(this, factory).get(MainViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
 //        viewModel.setPreference(sortOrder);
         viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
             @Override
             public void onChanged(@Nullable List<MovieList> movieLists) {
+                showOnlyLoading();
                 adapter.setMovies(movieLists);
 //                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
 //                recyclerView.scrollToPosition(mPosition);
@@ -114,13 +129,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
-//                            viewModel.setPreference(itemValue.get(i));
                             viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<MovieList>>() {
                                 @Override
                                 public void onChanged(@Nullable List<MovieList> movieLists) {
+                                    Log.e("Main", "show loading" );
+                                    showOnlyLoading();
                                     adapter.setMovies(movieLists);
-                                    if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-                                    recyclerView.scrollToPosition(mPosition);
+
                                     displayUI(movieLists);
                                 }
                             });
@@ -160,41 +175,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         recyclerView.setHasFixedSize(true);
         adapter = new MoviesAdapter(this);
         recyclerView.setAdapter(adapter);
-    }
-
-    /**
-     * Load movie list based on selected sort order preference.
-     *
-     * @param sortOrder
-     */
-    private void loadMovies(final String sortOrder) {
-        showOnlyLoading();
-
-        if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
-            viewModel.getFavouriteMovieData().observe(this, new Observer<List<MovieList>>() {
-                @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
-                    String currentSort = SharedPreferenceHelper.getSortPreferenceValue(MainActivity.this,
-                            getString(R.string.pref_sort_key));
-                    if (currentSort.equals(getString(R.string.pref_sort_favourites))) {
-                        adapter.setMovies(movieLists);
-                        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-                        recyclerView.scrollToPosition(mPosition);
-                        displayUI(movieLists);
-                    }
-                }
-            });
-        } else {
-            viewModel.getOtherMovieData(sortOrder).observe(this, new Observer<List<MovieList>>() {
-                @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
-                    adapter.setMovies(movieLists);
-                    if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-                    recyclerView.scrollToPosition(mPosition);
-                    displayUI(movieLists);
-                }
-            });
-        }
     }
 
     /**

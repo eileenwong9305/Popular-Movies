@@ -134,39 +134,39 @@ public final class NetworkUtils {
      * @return movie detail
      * @throws JSONException if JSON cannot be properly parsed
      */
-    public static FavouriteMovie parseMovieDetailJson(String json) throws JSONException {
-
-        JSONObject detailRoot = new JSONObject(json);
-
-        String title = detailRoot.getString(KEY_TITLE);
-        String poster = detailRoot.getString(KEY_POSTER_PATH);
-        String backdrop = detailRoot.getString(KEY_BACKDROP);
-        String releaseDate = detailRoot.getString(KEY_RELEASE_DATE);
-        if (releaseDate.equals("null")) {
-            releaseDate = "TBD";
-        } else {
-            releaseDate = convertDateString(releaseDate);
-        }
-        String overview = detailRoot.getString(KEY_OVERVIEW);
-        String userRating = detailRoot.getString(KEY_USER_RATING);
-        String language = detailRoot.getString(KEY_ORIGINAL_LANGUAGE);
-        int movieId = detailRoot.getInt(KEY_MOVIE_ID);
-
-        JSONArray genreList = detailRoot.getJSONArray(KEY_GENRES);
-
-        ArrayList<String> genres = new ArrayList<>();
-        for (int i = 0; i < genreList.length(); i++) {
-            JSONObject genre = genreList.getJSONObject(i);
-            String genreName = genre.getString(KEY_NAME);
-            genres.add(genreName);
-        }
-
-        String runtime = detailRoot.getString(KEY_RUNTIME);
-        if (runtime.equals("null")) runtime = "-";
-
-        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop,
-                movieId, genres, runtime, language);
-    }
+//    public static FavouriteMovie parseMovieDetailJson(String json) throws JSONException {
+//
+//        JSONObject detailRoot = new JSONObject(json);
+//
+//        String title = detailRoot.getString(KEY_TITLE);
+//        String poster = detailRoot.getString(KEY_POSTER_PATH);
+//        String backdrop = detailRoot.getString(KEY_BACKDROP);
+//        String releaseDate = detailRoot.getString(KEY_RELEASE_DATE);
+//        if (releaseDate.equals("null")) {
+//            releaseDate = "TBD";
+//        } else {
+//            releaseDate = convertDateString(releaseDate);
+//        }
+//        String overview = detailRoot.getString(KEY_OVERVIEW);
+//        String userRating = detailRoot.getString(KEY_USER_RATING);
+//        String language = detailRoot.getString(KEY_ORIGINAL_LANGUAGE);
+//        int movieId = detailRoot.getInt(KEY_MOVIE_ID);
+//
+//        JSONArray genreList = detailRoot.getJSONArray(KEY_GENRES);
+//
+//        ArrayList<String> genres = new ArrayList<>();
+//        for (int i = 0; i < genreList.length(); i++) {
+//            JSONObject genre = genreList.getJSONObject(i);
+//            String genreName = genre.getString(KEY_NAME);
+//            genres.add(genreName);
+//        }
+//
+//        String runtime = detailRoot.getString(KEY_RUNTIME);
+//        if (runtime.equals("null")) runtime = "-";
+//
+//        return new FavouriteMovie(title, poster, overview, userRating, releaseDate, backdrop,
+//                movieId, genres, runtime, language);
+//    }
 
     /**
      * Parses JSON from web response and return list of videos of selected movie
