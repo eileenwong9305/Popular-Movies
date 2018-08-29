@@ -4,7 +4,7 @@
     <string name="user_rating">Rating</string>
     <string name="release_date">Release date</string>
     <string name="error_message">No network connection</string>
-    <string name="empty_list_message">Empty favourite list</string>
+    <string name="empty_list_message">Your favourite list is empty\nHeart your fave!</string>
     <string name="highest_rated">Highest rated</string>
     <string name="most_popular">Most popular</string>
     <string name="desc_backdrop">Backdrop of the movie</string>

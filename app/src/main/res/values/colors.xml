@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorIcon">#ed8a85</color>
     <color name="colorPrimary">#E03830</color>
     <color name="colorPrimaryDark">#B02020</color>
     <color name="colorSeparator">#F0E8E8</color>

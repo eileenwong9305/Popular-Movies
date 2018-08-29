@@ -25,8 +25,6 @@ import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.GridItemClickListener;
 import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.Utils.AppExecutor;
-import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
 import com.example.android.popularmovies.adapter.FavMoviesAdapter;
 import com.example.android.popularmovies.adapter.MoviesAdapter;
@@ -75,9 +73,6 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     private MainViewModel viewModel;
-
-    @Inject
-    AppExecutor appExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,9 +234,8 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    private void loadMovies(final String sortOrder) {
+    private void loadMovies(String sortOrder) {
         loadingIndicator.setVisibility(View.VISIBLE);
-
         if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
             favMovieLayout.setVisibility(View.VISIBLE);
             movieLayout.setVisibility(View.GONE);
@@ -265,28 +259,22 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         } else {
             favMovieLayout.setVisibility(View.GONE);
             movieLayout.setVisibility(View.VISIBLE);
-            appExecutor.networkIO().execute(new Runnable() {
+            viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
                 @Override
-                public void run() {
-                    if (NetworkUtils.isOnline()){
-                        favMovieRecyclerView.setVisibility(View.GONE);
+                public void onChanged(@Nullable List<MovieList> movieLists) {
+                    Log.e(MainActivity.class.getSimpleName(), "other Change data");
+                    moviesAdapter.setMovies(movieLists);
+                    if (movieLists != null && movieLists.size() != 0) {
+                        movieRecyclerView.setVisibility(View.VISIBLE);
                         loadingIndicator.setVisibility(View.GONE);
-                        emptyListMessageTextView.setVisibility(View.VISIBLE);
+                        errorLayout.setVisibility(View.GONE);
                     } else {
-                        viewModel.getMovieList(sortOrder).observe(MainActivity.this, new Observer<List<MovieList>>() {
-                            @Override
-                            public void onChanged(@Nullable List<MovieList> movieLists) {
-                                Log.e(MainActivity.class.getSimpleName(), "other Change data");
-                                moviesAdapter.setMovies(movieLists);
-                                movieRecyclerView.setVisibility(View.VISIBLE);
-                                loadingIndicator.setVisibility(View.GONE);
-                                errorLayout.setVisibility(View.GONE);
-                            }
-                        });
+                        movieRecyclerView.setVisibility(View.GONE);
+                        loadingIndicator.setVisibility(View.GONE);
+                        errorLayout.setVisibility(View.VISIBLE);
                     }
                 }
             });
-
 
         }
 

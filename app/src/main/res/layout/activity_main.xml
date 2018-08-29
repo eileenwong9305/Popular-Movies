@@ -57,7 +57,7 @@
         android:id="@+id/layout_fav_movie"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_fav_movie"
@@ -73,12 +73,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:drawableTint="@color/colorAccent"
-            android:drawableTop="@drawable/ic_signal_wifi_off_black_24dp"
+            android:drawableTint="@color/colorIcon"
+            android:drawableTop="@drawable/ic_favorite_border_black_24dp"
             android:text="@string/empty_list_message"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
-            android:visibility="invisible"/>
+            android:textAlignment="center"
+            android:lineSpacingExtra="4dp"
+            android:visibility="visible"/>
 
     </FrameLayout>
 

@@ -99,8 +99,7 @@ public class MovieRepository {
 
     public LiveData<List<MovieList>> getMovieList(String sortOrder) {
         loadMovieListRetro(sortOrder);
-//        return mMovieList;
-        return movieDao.loadAllCurrentMovies();
+        return mMovieList;
     }
 
     public LiveData<List<MovieList>> getFavMovieList() {
