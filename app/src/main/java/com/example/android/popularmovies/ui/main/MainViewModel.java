@@ -34,4 +34,8 @@ public class MainViewModel extends ViewModel {
         return repository.getMovieList(sortOrder);
     }
 
+    public LiveData<List<MovieList>> getFavMovieList(){
+        return repository.getFavMovieList();
+    }
+
 }

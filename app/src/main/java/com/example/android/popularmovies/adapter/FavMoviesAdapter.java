@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
 import com.example.android.popularmovies.GridItemClickListener;
 import com.example.android.popularmovies.R;
@@ -16,26 +15,26 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
+public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.FavMovieViewHolder> {
 
     private static final String BASE_PATH = "http://image.tmdb.org/t/p/w342";
     private List<MovieList> movies;
     private GridItemClickListener listener;
 
-    public MoviesAdapter(GridItemClickListener listener) {
+    public FavMoviesAdapter(GridItemClickListener listener) {
         this.listener = listener;
     }
 
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FavMovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.grid_item, parent, false);
-        return new MovieViewHolder(view);
+        return new FavMovieViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder holder, int position) {
+    public void onBindViewHolder(FavMovieViewHolder holder, int position) {
         holder.bind(position);
     }
 
@@ -61,12 +60,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 //        void onClick(MovieList movie);
 //    }
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class FavMovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final ImageView gridItemImageView;
         final TextView titleTextView;
 
-        public MovieViewHolder(View view) {
+        public FavMovieViewHolder(View view) {
             super(view);
             gridItemImageView = view.findViewById(R.id.iv_poster);
             view.setOnClickListener(this);

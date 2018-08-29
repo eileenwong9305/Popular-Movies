@@ -40,6 +40,7 @@ public class MovieRepository {
     private MutableLiveData<List<Trailer>> movieTrailers;
     private MutableLiveData<List<Review>> movieReviews;
     private MutableLiveData<List<MovieList>> mMovieList;
+    private LiveData<List<MovieList>> favMovie;
 
     @Inject
     public MovieRepository(ApiInterface apiInterface, MovieDao dao, AppExecutor executor) {
@@ -57,60 +58,40 @@ public class MovieRepository {
         appExecutor.diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                if (sortOrder.equals("favourites")) {
-                    LiveData<List<MovieList>> favMovie = movieDao.loadAllFavouriteMovies();
-                    favMovie.observeForever(new Observer<List<MovieList>>() {
+                final long timeNow = System.currentTimeMillis();
+                long maxLastUpdatedAt = timeNow - 60000;
+                Log.e("Count", String.valueOf(movieDao.hasMovie(sortOrder, maxLastUpdatedAt)));
+                if (movieDao.hasMovie(sortOrder, maxLastUpdatedAt) < 1) {
+                    movieDao.deleteOldData();
+                    appExecutor.networkIO().execute(new Runnable() {
                         @Override
-                        public void onChanged(@Nullable List<MovieList> movieLists) {
-                            mMovieList.postValue(movieLists);
+                        public void run() {
+                            if (NetworkUtils.isOnline()) {
+                                try {
+                                    Response<MovieListResponse> response = mApiInterface.getMovie(sortOrder).execute();
+                                    MovieListResponse moviesResponse = response.body();
+                                    List<MovieList> movieList = moviesResponse.getResults();
+
+//                                    mMovieList.postValue(movieList);
+                                    List<Movie> movies = new ArrayList<Movie>();
+                                    for (MovieList movie: movieList) {
+                                        movies.add(new Movie(movie.getTitle(), movie.getPoster(), movie.getMovieId(), sortOrder, timeNow));
+                                    }
+
+                                    if(movies != null){
+                                        movieDao.bulkInsert(movies);
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            } else {
+                                Log.e("NetworkDataSource", "null");
+                            }
+                            mMovieList.postValue(movieDao.loadAllCurrentMoviesN());
                         }
                     });
-//                    mMovieList.postValue(movieDao.loadAllFavouriteMoviesN());
                 } else {
-                    final long timeNow = System.currentTimeMillis();
-                    long maxLastUpdatedAt = timeNow - 60000;
-                    Log.e("Count", String.valueOf(movieDao.hasMovie(sortOrder, maxLastUpdatedAt)));
-                    if (movieDao.hasMovie(sortOrder, maxLastUpdatedAt) < 1) {
-                        appExecutor.networkIO().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (NetworkUtils.isOnline()) {
-                                    try {
-                                        Log.e("Retrofit", "fetch Movie");
-                                        Log.e("Retrofit", mApiInterface.getMovie(sortOrder).request().url().toString());
-                                        Response<MovieListResponse> response = mApiInterface.getMovie(sortOrder).execute();
-                                        Log.e("Retrofit", String.valueOf(response.code()));
-                                        MovieListResponse moviesResponse = response.body();
-                                        List<MovieList> movieList = moviesResponse.getResults();
-                                        Log.e("Retrofit", movieList.toString());
-
-                                        mMovieList.postValue(movieList);
-                                        List<Movie> movies = new ArrayList<Movie>();
-                                        for (MovieList movie: movieList) {
-                                            movies.add(new Movie(movie.getTitle(), movie.getPoster(), movie.getMovieId(), sortOrder, timeNow));
-                                        }
-                                        Log.e("movie sort", String.valueOf(movies.get(1).getSort()));
-                                        Log.e("movie time", String.valueOf(movies.get(1).getUpdatedAt()));
-                                        movieDao.deleteOldData();
-                                        Log.e("MovieDao", "delete");
-                                        if(movies == null){
-                                            Log.e("MovieRepo", "null");
-                                        } else {
-                                            Log.e("MovieRepo", "insert movielist");
-                                            movieDao.bulkInsert(movies);
-                                            Log.e("MovieRepo", "finish insert");
-                                        }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                } else {
-                                    Log.e("NetworkDataSource", "null");
-                                }
-                            }
-                        });
-                    } else {
-                        mMovieList.postValue(movieDao.loadAllCurrentMoviesN());
-                    }
+                    mMovieList.postValue(movieDao.loadAllCurrentMoviesN());
                 }
             }
         });
@@ -118,7 +99,12 @@ public class MovieRepository {
 
     public LiveData<List<MovieList>> getMovieList(String sortOrder) {
         loadMovieListRetro(sortOrder);
-        return mMovieList;
+//        return mMovieList;
+        return movieDao.loadAllCurrentMovies();
+    }
+
+    public LiveData<List<MovieList>> getFavMovieList() {
+        return movieDao.loadAllFavouriteMovies();
     }
 
     public boolean containMovieId(int movieId) {
@@ -154,18 +140,13 @@ public class MovieRepository {
                         public void run() {
                             if (NetworkUtils.isOnline()) {
                                 try {
-                                    Log.e("Retrofit", "fetch MovieDetail");
-                                    Log.e("Retrofit", mApiInterface.getMovieDetail(movieId).request().url().toString());
                                     Response<FavouriteMovie> detailResponse = mApiInterface.getMovieDetail(movieId).execute();
                                     FavouriteMovie detail = detailResponse.body();
                                     if (detail != null) {
                                         movieDetails.postValue(detail);
                                     }
 
-                                    Log.e("Retrofit", "fetch MovieVideo");
-                                    Log.e("Retrofit", mApiInterface.getMovieVideo(movieId).request().url().toString());
                                     Response<VideoResponse> videoResponse = mApiInterface.getMovieVideo(movieId).execute();
-                                    Log.e("Retrofit", String.valueOf(videoResponse.code()));
                                     List<Trailer> trailers = videoResponse.body().getVideos();
 
                                     if (trailers != null && trailers.size() != 0) {

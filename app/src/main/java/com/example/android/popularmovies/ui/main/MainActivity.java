@@ -16,17 +16,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Data.Movie;
 import com.example.android.popularmovies.Data.MovieList;
-import com.example.android.popularmovies.MovieApplication;
+import com.example.android.popularmovies.GridItemClickListener;
 import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.Utils.InjectorUtils;
+import com.example.android.popularmovies.Utils.AppExecutor;
+import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
+import com.example.android.popularmovies.adapter.FavMoviesAdapter;
 import com.example.android.popularmovies.adapter.MoviesAdapter;
 import com.example.android.popularmovies.ui.detail.DetailActivity;
 
@@ -39,23 +41,32 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.GridItemListener {
+public class MainActivity extends AppCompatActivity implements GridItemClickListener {
 
     public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie";
     private static final String BUNDLE_RECYCLER_LAYOUT = "recycler_layout";
 
     @BindView(R.id.pb_loading_indicator)
     public ProgressBar loadingIndicator;
+    @BindView(R.id.layout_movie)
+    public FrameLayout movieLayout;
+    @BindView(R.id.layout_network_error)
+    public LinearLayout errorLayout;
     @BindView(R.id.tv_error_message)
     public TextView errorMessageTextView;
     @BindView(R.id.rv_movie)
-    public RecyclerView recyclerView;
-    @BindView(R.id.layout_error)
-    public LinearLayout errorLayout;
+    public RecyclerView movieRecyclerView;
+    @BindView(R.id.layout_fav_movie)
+    public FrameLayout favMovieLayout;
+    @BindView(R.id.tv_empty_list_message)
+    public TextView emptyListMessageTextView;
+    @BindView(R.id.rv_fav_movie)
+    public RecyclerView favMovieRecyclerView;
 
-    private MoviesAdapter adapter;
+
+    private MoviesAdapter moviesAdapter;
+    private FavMoviesAdapter favMovieAdapter;
 
     private int mPosition = RecyclerView.NO_POSITION;
 
@@ -65,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     ViewModelProvider.Factory viewModelFactory;
     private MainViewModel viewModel;
 
+    @Inject
+    AppExecutor appExecutor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         AndroidInjection.inject(this);
         ButterKnife.bind(this);
         setupRecyclerView();
+        loadingIndicator.setVisibility(View.VISIBLE);
+
 
 //        if (savedInstanceState != null) {
 //            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
@@ -81,23 +97,24 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
 //        viewModel.setPreference(sortOrder);
-        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
-            @Override
-            public void onChanged(@Nullable List<MovieList> movieLists) {
-                showOnlyLoading();
-                adapter.setMovies(movieLists);
-//                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-//                recyclerView.scrollToPosition(mPosition);
-                displayUI(movieLists);
-            }
-        });
-//        loadMovies(sortOrder);
+//        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
+//            @Override
+//            public void onChanged(@Nullable List<MovieList> movieLists) {
+//                Log.e(MainActivity.class.getSimpleName(), "Change data");
+//                showOnlyLoading();
+//                moviesAdapter.setMovies(movieLists);
+////                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+////                movieRecyclerView.scrollToPosition(mPosition);
+//                displayUI(movieLists);
+//            }
+//        });
+        loadMovies(sortOrder);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        int lastFirstVisiblePosition = ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        int lastFirstVisiblePosition = ((GridLayoutManager) movieRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
         outState.putInt(BUNDLE_RECYCLER_LAYOUT, lastFirstVisiblePosition);
     }
 
@@ -129,17 +146,18 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
-                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<MovieList>>() {
-                                @Override
-                                public void onChanged(@Nullable List<MovieList> movieLists) {
-                                    Log.e("Main", "show loading" );
-                                    showOnlyLoading();
-                                    adapter.setMovies(movieLists);
 
-                                    displayUI(movieLists);
-                                }
-                            });
-//                            loadMovies(itemValue.get(i));
+//                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<MovieList>>() {
+//                                @Override
+//                                public void onChanged(@Nullable List<MovieList> movieLists) {
+//                                    Log.e("Main", "show loading" );
+//                                    showOnlyLoading();
+//                                    moviesAdapter.setMovies(movieLists);
+//
+//                                    displayUI(movieLists);
+//                                }
+//                            });
+                            loadMovies(itemValue.get(i));
                             dialogInterface.dismiss();
                         }
                     });
@@ -158,23 +176,30 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     public void refreshView(View v) {
         String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
 //        viewModel.setPreference(sortOrder);
-//        loadMovies(sortOrder);
+        loadMovies(sortOrder);
     }
 
     /**
      * Setup recyclerview and layoutManager based on the orientation of device
      */
     private void setupRecyclerView() {
-        GridLayoutManager layoutManager;
+        int spanCount;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            layoutManager = new GridLayoutManager(this, 2);
+            spanCount = 2;
         } else {
-            layoutManager = new GridLayoutManager(this, 4);
+            spanCount = 4;
         }
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-        adapter = new MoviesAdapter(this);
-        recyclerView.setAdapter(adapter);
+        GridLayoutManager movieLayoutManager = new GridLayoutManager(this, spanCount);
+        movieRecyclerView.setLayoutManager(movieLayoutManager);
+        movieRecyclerView.setHasFixedSize(true);
+        moviesAdapter = new MoviesAdapter(this);
+        movieRecyclerView.setAdapter(moviesAdapter);
+
+        GridLayoutManager favMovieLayoutManager = new GridLayoutManager(this, spanCount);
+        favMovieRecyclerView.setLayoutManager(favMovieLayoutManager);
+        favMovieRecyclerView.setHasFixedSize(true);
+        favMovieAdapter = new FavMoviesAdapter(this);
+        favMovieRecyclerView.setAdapter(favMovieAdapter);
     }
 
     /**
@@ -196,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private void showMovieData() {
         loadingIndicator.setVisibility(View.INVISIBLE);
         errorLayout.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -205,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
     private void showErrorMessage() {
         loadingIndicator.setVisibility(View.INVISIBLE);
         errorLayout.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -213,7 +236,59 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Gri
      */
     private void showOnlyLoading() {
         errorLayout.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.INVISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    private void loadMovies(final String sortOrder) {
+        loadingIndicator.setVisibility(View.VISIBLE);
+
+        if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
+            favMovieLayout.setVisibility(View.VISIBLE);
+            movieLayout.setVisibility(View.GONE);
+            viewModel.getFavMovieList().observe(this, new Observer<List<MovieList>>() {
+                @Override
+                public void onChanged(@Nullable List<MovieList> movieLists) {
+                    Log.e(MainActivity.class.getSimpleName(), "Fav Change data");
+                    favMovieAdapter.setMovies(movieLists);
+                    if (movieLists != null && movieLists.size() != 0) {
+                        favMovieRecyclerView.setVisibility(View.VISIBLE);
+                        loadingIndicator.setVisibility(View.GONE);
+                        emptyListMessageTextView.setVisibility(View.GONE);
+                    } else {
+                        favMovieRecyclerView.setVisibility(View.GONE);
+                        loadingIndicator.setVisibility(View.GONE);
+                        emptyListMessageTextView.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+
+        } else {
+            favMovieLayout.setVisibility(View.GONE);
+            movieLayout.setVisibility(View.VISIBLE);
+            appExecutor.networkIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (NetworkUtils.isOnline()){
+                        favMovieRecyclerView.setVisibility(View.GONE);
+                        loadingIndicator.setVisibility(View.GONE);
+                        emptyListMessageTextView.setVisibility(View.VISIBLE);
+                    } else {
+                        viewModel.getMovieList(sortOrder).observe(MainActivity.this, new Observer<List<MovieList>>() {
+                            @Override
+                            public void onChanged(@Nullable List<MovieList> movieLists) {
+                                Log.e(MainActivity.class.getSimpleName(), "other Change data");
+                                moviesAdapter.setMovies(movieLists);
+                                movieRecyclerView.setVisibility(View.VISIBLE);
+                                loadingIndicator.setVisibility(View.GONE);
+                                errorLayout.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                }
+            });
+
+
+        }
+
     }
 }
