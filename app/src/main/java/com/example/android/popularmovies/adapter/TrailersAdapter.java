@@ -15,8 +15,8 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Data.Trailer;
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.data.Trailer;
 import com.example.android.popularmovies.ui.detail.DetailActivity;
 import com.squareup.picasso.Picasso;
 

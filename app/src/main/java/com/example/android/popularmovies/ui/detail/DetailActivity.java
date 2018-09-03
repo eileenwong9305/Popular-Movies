@@ -8,14 +8,12 @@ import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
-import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -25,6 +23,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
@@ -32,32 +31,38 @@ import android.widget.TextView;
 
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 import com.beloo.widget.chipslayoutmanager.SpacingItemDecoration;
-import com.example.android.popularmovies.Data.FavouriteMovie;
-import com.example.android.popularmovies.Data.Genre;
-import com.example.android.popularmovies.Data.Review;
-import com.example.android.popularmovies.Data.Trailer;
-import com.example.android.popularmovies.MovieApplication;
-import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.Utils.AppExecutor;
-import com.example.android.popularmovies.Utils.InjectorUtils;
 import com.example.android.popularmovies.adapter.GenreAdapter;
 import com.example.android.popularmovies.adapter.ReviewsAdapter;
 import com.example.android.popularmovies.adapter.TrailersAdapter;
+import com.example.android.popularmovies.data.FavouriteMovie;
+import com.example.android.popularmovies.data.Genre;
+import com.example.android.popularmovies.data.Resource;
+import com.example.android.popularmovies.data.Review;
+import com.example.android.popularmovies.data.Trailer;
 import com.example.android.popularmovies.ui.main.MainActivity;
+import com.example.android.popularmovies.utils.AppExecutor;
+import com.example.android.popularmovies.utils.SharedPreferenceHelper;
 import com.squareup.picasso.Picasso;
 
+import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
-import dagger.multibindings.IntoMap;
 
 public class DetailActivity extends AppCompatActivity implements TrailersAdapter.TrailerClickListener {
 
+    public static final String PREF_IS_FAVOURITE_KEY = "fav";
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
     private static final String BACKDROP_BASE_PATH = "http://image.tmdb.org/t/p/w500";
     private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w342";
@@ -69,8 +74,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     public TextView overviewTextView;
     @BindView(R.id.tv_detail_user_rating)
     public TextView userRatingTextView;
-    @BindView(R.id.rating_bar)
-    RatingBar ratingBar;
     @BindView(R.id.tv_detail_release_date)
     public TextView releaseDateTextView;
     @BindView(R.id.tv_detail_language)
@@ -97,13 +100,20 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     public ProgressBar loadingIndicator;
     @BindView(R.id.tv_error_message_detail)
     public TextView errorMessage;
-    @BindView(R.id.scroll)
-    public NestedScrollView movieDetailContent;
+    @BindView(R.id.layout_movie_content)
+    public ConstraintLayout movieContent;
     @BindView(R.id.collapsing_toolbar)
     public Toolbar toolbar;
     @BindView(R.id.coordinator)
     public CoordinatorLayout coordinatorLayout;
-
+    @BindView(R.id.backdrop_frame)
+    public FrameLayout backdropFrame;
+    @BindView(R.id.rating_bar)
+    RatingBar ratingBar;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+    @Inject
+    AppExecutor appExecutor;
     private FavouriteMovie movieDetails;
     private List<Review> movieReviews;
     private List<Trailer> movieTrailers;
@@ -112,13 +122,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private TrailersAdapter trailersAdapter;
     private GenreAdapter genreAdapter;
     private boolean addToFavourite = false;
-
-    @Inject
-    ViewModelProvider.Factory viewModelFactory;
     private DetailViewModel viewModel;
-
-    @Inject
-    AppExecutor appExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,10 +141,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         setupToolbar();
         setupRecyclerView();
 
-        showOnlyLoading();
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetailViewModel.class);
-        displayMovieInfo();
 
+        displayMovieInfo();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -229,45 +232,82 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
      * Load movie information
      */
     private void displayMovieInfo() {
+        viewModel.setMovieId(movieId);
         appExecutor.diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 if (viewModel.containMovieId(movieId)) {
                     addToFavourite = true;
+                    SharedPreferenceHelper.setSharedPreference(PREF_IS_FAVOURITE_KEY, true);
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                }
-            }
-        });
-
-        viewModel.getMovieDetail(movieId).observe(this, new Observer<FavouriteMovie>() {
-            @Override
-            public void onChanged(@Nullable FavouriteMovie favouriteMovie) {
-                if (favouriteMovie != null) {
-                    showMovieDetails(favouriteMovie);
-                    showMovieData();
-                    movieDetails = favouriteMovie;
                 } else {
-                    showErrorMessage();
+                    SharedPreferenceHelper.setSharedPreference(PREF_IS_FAVOURITE_KEY, false);
                 }
             }
         });
 
-        viewModel.getMovieReview().observe(this, new Observer<List<Review>>() {
+        viewModel.getMovieDetail().observe(this, new Observer<Resource<FavouriteMovie>>() {
             @Override
-            public void onChanged(@Nullable List<Review> reviews) {
-                movieReviews = reviews;
-                showMovieReview(reviews);
+            public void onChanged(@Nullable Resource<FavouriteMovie> favouriteMovieResource) {
+                if (favouriteMovieResource != null) {
+                    switch (favouriteMovieResource.status) {
+                        case SUCCESS:
+                            if (favouriteMovieResource.data != null) {
+                                movieDetails = favouriteMovieResource.data;
+                                showMovieDetails(movieDetails);
+                                showMovieData();
+                            }
+                            break;
+                        case ERROR:
+                            showErrorMessage();
+                            break;
+                        case LOADING:
+                            showOnlyLoading();
+                            break;
+                    }
+                }
             }
         });
 
-        viewModel.getMovieVideo().observe(this, new Observer<List<Trailer>>() {
+        viewModel.getMovieReview().observe(this, new Observer<Resource<List<Review>>>() {
             @Override
-            public void onChanged(@Nullable List<Trailer> trailers) {
-                movieTrailers = trailers;
-                showMovieVideo(trailers);
+            public void onChanged(@Nullable Resource<List<Review>> listResource) {
+                if (listResource != null) {
+                    switch (listResource.status) {
+                        case SUCCESS:
+                            movieReviews = listResource.data;
+                            showMovieReview(movieReviews);
+                            break;
+                        case ERROR:
+                            reviewCardView.setVisibility(View.GONE);
+                            break;
+                        case LOADING:
+                            break;
+                    }
+                }
+            }
+        });
+
+        viewModel.getMovieVideo().observe(this, new Observer<Resource<List<Trailer>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Trailer>> listResource) {
+                if (listResource != null) {
+                    switch (listResource.status) {
+                        case SUCCESS:
+                            movieTrailers = listResource.data;
+                            showMovieVideo(movieTrailers);
+                            break;
+                        case ERROR:
+                            trailerCardView.setVisibility(View.GONE);
+                            break;
+                        case LOADING:
+                            break;
+                    }
+                }
             }
         });
     }
+
 
     /**
      * Load details of movie
@@ -278,18 +318,21 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         collapsingToolbarLayout.setTitle(movieDetails.getTitle());
         String backdropUrl = BACKDROP_BASE_PATH + movieDetails.getBackdrop();
         Picasso.get().load(backdropUrl).fit().centerCrop().into(backdropImageView);
-
-        if (movieDetails.getPoster().equals("null")) {
-            posterImageView.setImageResource(R.drawable.no_pic);
-        } else {
+        if (!movieDetails.getPoster().equals("null")) {
             String posterUrl = POSTER_BASE_PATH + movieDetails.getPoster();
-            Picasso.get().load(posterUrl).fit().centerCrop().into(posterImageView);
+            Picasso.get()
+                    .load(posterUrl)
+                    .placeholder(R.drawable.poster_placeholder)
+                    .error(R.drawable.no_pic)
+                    .fit()
+                    .centerCrop()
+                    .into(posterImageView);
         }
         overviewTextView.setText(movieDetails.getOverview());
         userRatingTextView.setText(movieDetails.getUserRating());
         float userRating = Float.valueOf(movieDetails.getUserRating());
-        ratingBar.setRating(userRating/2);
-        releaseDateTextView.setText(movieDetails.getReleaseDate());
+        ratingBar.setRating(userRating / 2);
+        releaseDateTextView.setText(convertDateString(movieDetails.getReleaseDate()));
         runtimeTextView.setText(getString(R.string.runtime_value, movieDetails.getRuntime()));
         languageTextView.setText(movieDetails.getLanguage());
         List<Genre> genres = movieDetails.getGenres();
@@ -330,7 +373,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private void showMovieData() {
         loadingIndicator.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.INVISIBLE);
-        movieDetailContent.setVisibility(View.VISIBLE);
+        movieContent.setVisibility(View.VISIBLE);
+        backdropFrame.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -339,7 +383,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     private void showErrorMessage() {
         loadingIndicator.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.VISIBLE);
-        movieDetailContent.setVisibility(View.INVISIBLE);
+        movieContent.setVisibility(View.INVISIBLE);
+        backdropFrame.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -347,7 +392,26 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
      */
     private void showOnlyLoading() {
         errorMessage.setVisibility(View.INVISIBLE);
-        movieDetailContent.setVisibility(View.INVISIBLE);
+        movieContent.setVisibility(View.INVISIBLE);
+        backdropFrame.setVisibility(View.INVISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Change the date format
+     *
+     * @param dateString date in String type
+     * @return Converted date string
+     */
+    private String convertDateString(String dateString) {
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        return dateFormatter.format(date);
     }
 }

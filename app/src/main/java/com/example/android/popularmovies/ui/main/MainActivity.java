@@ -12,23 +12,22 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Data.MovieList;
-import com.example.android.popularmovies.GridItemClickListener;
-import com.example.android.popularmovies.MovieRepository;
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.Utils.SharedPreferenceHelper;
 import com.example.android.popularmovies.adapter.FavMoviesAdapter;
 import com.example.android.popularmovies.adapter.MoviesAdapter;
+import com.example.android.popularmovies.data.Movie;
+import com.example.android.popularmovies.data.Resource;
+import com.example.android.popularmovies.repository.MovieRepository;
 import com.example.android.popularmovies.ui.detail.DetailActivity;
+import com.example.android.popularmovies.utils.GridItemClickListener;
+import com.example.android.popularmovies.utils.SharedPreferenceHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,36 +41,27 @@ import dagger.android.AndroidInjection;
 
 public class MainActivity extends AppCompatActivity implements GridItemClickListener {
 
-    public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie";
-    private static final String BUNDLE_RECYCLER_LAYOUT = "recycler_layout";
+    public static final String KEY_SELECTED_MOVIE_ID_INTENT = "selected_movie_id";
 
     @BindView(R.id.pb_loading_indicator)
     public ProgressBar loadingIndicator;
-    @BindView(R.id.layout_movie)
-    public FrameLayout movieLayout;
     @BindView(R.id.layout_network_error)
     public LinearLayout errorLayout;
     @BindView(R.id.tv_error_message)
     public TextView errorMessageTextView;
     @BindView(R.id.rv_movie)
     public RecyclerView movieRecyclerView;
-    @BindView(R.id.layout_fav_movie)
-    public FrameLayout favMovieLayout;
     @BindView(R.id.tv_empty_list_message)
     public TextView emptyListMessageTextView;
     @BindView(R.id.rv_fav_movie)
     public RecyclerView favMovieRecyclerView;
-
-
-    private MoviesAdapter moviesAdapter;
-    private FavMoviesAdapter favMovieAdapter;
-
-    private int mPosition = RecyclerView.NO_POSITION;
-
     @Inject
     MovieRepository movieRepository;
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+    private MoviesAdapter moviesAdapter;
+    private FavMoviesAdapter favMovieAdapter;
+    private int mPosition = RecyclerView.NO_POSITION;
     private MainViewModel viewModel;
 
     @Override
@@ -82,39 +72,17 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         AndroidInjection.inject(this);
         ButterKnife.bind(this);
         setupRecyclerView();
-        loadingIndicator.setVisibility(View.VISIBLE);
-
-
-//        if (savedInstanceState != null) {
-//            mPosition = savedInstanceState.getInt(BUNDLE_RECYCLER_LAYOUT);
-//        }
+        showOnlyLoading();
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
-        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
-//        viewModel.setPreference(sortOrder);
-//        viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
-//            @Override
-//            public void onChanged(@Nullable List<MovieList> movieLists) {
-//                Log.e(MainActivity.class.getSimpleName(), "Change data");
-//                showOnlyLoading();
-//                moviesAdapter.setMovies(movieLists);
-////                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-////                movieRecyclerView.scrollToPosition(mPosition);
-//                displayUI(movieLists);
-//            }
-//        });
+        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_default));
         loadMovies(sortOrder);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        int lastFirstVisiblePosition = ((GridLayoutManager) movieRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        outState.putInt(BUNDLE_RECYCLER_LAYOUT, lastFirstVisiblePosition);
-    }
-
-    @Override
-    public void onClick(MovieList movie) {
+    public void onClick(Movie movie) {
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
         intent.putExtra(KEY_SELECTED_MOVIE_ID_INTENT, movie.getMovieId());
         startActivity(intent);
@@ -132,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         if (id == R.id.action_sort) {
             final String sortKey = getString(R.string.pref_sort_key);
             final ArrayList<String> itemValue = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.pref_sort_values)));
-            int selectedPosition = itemValue.indexOf(SharedPreferenceHelper.getSortPreferenceValue(this, sortKey));
+            int selectedPosition = itemValue.indexOf(SharedPreferenceHelper.getSortPreferenceValue(
+                    sortKey, getString(R.string.pref_sort_default)));
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Sort Order");
             builder.setSingleChoiceItems(getResources().getStringArray(R.array.pref_sort_options),
@@ -140,18 +109,7 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            SharedPreferenceHelper.setSharedPreference(MainActivity.this, sortKey, itemValue.get(i));
-
-//                            viewModel.getMovieList(itemValue.get(i)).observe(MainActivity.this, new Observer<List<MovieList>>() {
-//                                @Override
-//                                public void onChanged(@Nullable List<MovieList> movieLists) {
-//                                    Log.e("Main", "show loading" );
-//                                    showOnlyLoading();
-//                                    moviesAdapter.setMovies(movieLists);
-//
-//                                    displayUI(movieLists);
-//                                }
-//                            });
+                            SharedPreferenceHelper.setSharedPreference(sortKey, itemValue.get(i));
                             loadMovies(itemValue.get(i));
                             dialogInterface.dismiss();
                         }
@@ -169,8 +127,9 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
      * @param v view
      */
     public void refreshView(View v) {
-        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(this, getString(R.string.pref_sort_key));
-//        viewModel.setPreference(sortOrder);
+        String sortOrder = SharedPreferenceHelper.getSortPreferenceValue(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_default));
         loadMovies(sortOrder);
     }
 
@@ -197,86 +156,84 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         favMovieRecyclerView.setAdapter(favMovieAdapter);
     }
 
-    /**
-     * Display data based on availability of movie data
-     *
-     * @param movieLists list of movies
-     */
-    private void displayUI(List<MovieList> movieLists) {
-        if (movieLists != null && movieLists.size() != 0) {
-            showMovieData();
-        } else {
-            showErrorMessage();
-        }
+
+    private void showMovie() {
+        movieRecyclerView.setVisibility(View.VISIBLE);
+        favMovieRecyclerView.setVisibility(View.GONE);
+        loadingIndicator.setVisibility(View.GONE);
+        emptyListMessageTextView.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.GONE);
     }
 
-    /**
-     * Show data and hide error message
-     */
-    private void showMovieData() {
-        loadingIndicator.setVisibility(View.INVISIBLE);
-        errorLayout.setVisibility(View.INVISIBLE);
+    private void showFavMovie() {
+        loadingIndicator.setVisibility(View.GONE);
+        emptyListMessageTextView.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.GONE);
     }
 
-    /**
-     * Show error message and hide data
-     */
-    private void showErrorMessage() {
-        loadingIndicator.setVisibility(View.INVISIBLE);
+    private void showNoNetworkMessage() {
+        movieRecyclerView.setVisibility(View.GONE);
+        favMovieRecyclerView.setVisibility(View.GONE);
+        loadingIndicator.setVisibility(View.GONE);
+        emptyListMessageTextView.setVisibility(View.GONE);
         errorLayout.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Hide data and error message and display loading indicator
-     */
-    private void showOnlyLoading() {
-        errorLayout.setVisibility(View.INVISIBLE);
-        loadingIndicator.setVisibility(View.VISIBLE);
+    private void showEmptyListMessage() {
+        movieRecyclerView.setVisibility(View.GONE);
+        favMovieRecyclerView.setVisibility(View.GONE);
+        loadingIndicator.setVisibility(View.GONE);
+        emptyListMessageTextView.setVisibility(View.VISIBLE);
+        errorLayout.setVisibility(View.GONE);
     }
 
-    private void loadMovies(String sortOrder) {
+    private void showOnlyLoading() {
+        movieRecyclerView.setVisibility(View.GONE);
+        favMovieRecyclerView.setVisibility(View.GONE);
+        loadingIndicator.setVisibility(View.VISIBLE);
+        emptyListMessageTextView.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.GONE);
+    }
+
+    private void loadMovies(final String sortOrder) {
         loadingIndicator.setVisibility(View.VISIBLE);
         if (sortOrder.equals(getString(R.string.pref_sort_favourites))) {
-            favMovieLayout.setVisibility(View.VISIBLE);
-            movieLayout.setVisibility(View.GONE);
-            viewModel.getFavMovieList().observe(this, new Observer<List<MovieList>>() {
+            movieRecyclerView.setVisibility(View.GONE);
+            favMovieRecyclerView.setVisibility(View.VISIBLE);
+            viewModel.getFavMovieList().observe(this, new Observer<List<Movie>>() {
                 @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
-                    Log.e(MainActivity.class.getSimpleName(), "Fav Change data");
-                    favMovieAdapter.setMovies(movieLists);
-                    if (movieLists != null && movieLists.size() != 0) {
-                        favMovieRecyclerView.setVisibility(View.VISIBLE);
-                        loadingIndicator.setVisibility(View.GONE);
-                        emptyListMessageTextView.setVisibility(View.GONE);
+                public void onChanged(@Nullable List<Movie> movies) {
+                    favMovieAdapter.setMovies(movies);
+                    if (movies != null && movies.size() != 0) {
+                        showFavMovie();
                     } else {
-                        favMovieRecyclerView.setVisibility(View.GONE);
-                        loadingIndicator.setVisibility(View.GONE);
-                        emptyListMessageTextView.setVisibility(View.VISIBLE);
+                        showEmptyListMessage();
                     }
                 }
             });
 
         } else {
-            favMovieLayout.setVisibility(View.GONE);
-            movieLayout.setVisibility(View.VISIBLE);
-            viewModel.getMovieList(sortOrder).observe(this, new Observer<List<MovieList>>() {
+            viewModel.setSortOrder(sortOrder);
+            viewModel.getMovieList().observe(this, new Observer<Resource<List<Movie>>>() {
                 @Override
-                public void onChanged(@Nullable List<MovieList> movieLists) {
-                    Log.e(MainActivity.class.getSimpleName(), "other Change data");
-                    moviesAdapter.setMovies(movieLists);
-                    if (movieLists != null && movieLists.size() != 0) {
-                        movieRecyclerView.setVisibility(View.VISIBLE);
-                        loadingIndicator.setVisibility(View.GONE);
-                        errorLayout.setVisibility(View.GONE);
-                    } else {
-                        movieRecyclerView.setVisibility(View.GONE);
-                        loadingIndicator.setVisibility(View.GONE);
-                        errorLayout.setVisibility(View.VISIBLE);
+                public void onChanged(@Nullable Resource<List<Movie>> listResource) {
+                    if (listResource != null) {
+                        switch (listResource.status) {
+                            case SUCCESS:
+                                moviesAdapter.setMovies(listResource.data);
+                                showMovie();
+                                break;
+                            case ERROR:
+                                showNoNetworkMessage();
+                                break;
+                            case LOADING:
+                                showOnlyLoading();
+                                break;
+                        }
                     }
                 }
             });
 
         }
-
     }
 }

@@ -21,6 +21,7 @@
     <dimen name="backdrop_height">270dp</dimen>
     <dimen name="poster_width">150dp</dimen>
     <dimen name="poster_height">220dp</dimen>
+    <dimen name="land_poster_height">270dp</dimen>
     <dimen name="barrier_margin">270dp</dimen>
     <dimen name="rating_bottom_margin">40dp</dimen>
     <dimen name="item_spacing">8dp</dimen>
@@ -30,5 +31,6 @@
     <dimen name="rating_bar_bottom_margin">36dp</dimen>
     <dimen name="zero_size">0dp</dimen>
     <dimen name="overview_line_space_extra">3dp</dimen>
+    <dimen name="line_spacing_extra">4dp</dimen>
 
 </resources>

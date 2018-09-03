@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.popularmovies.Data.MovieList;
-import com.example.android.popularmovies.GridItemClickListener;
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.data.Movie;
+import com.example.android.popularmovies.utils.GridItemClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.FavMovieViewHolder> {
 
     private static final String BASE_PATH = "http://image.tmdb.org/t/p/w342";
-    private List<MovieList> movies;
+    private List<Movie> movies;
     private GridItemClickListener listener;
 
     public FavMoviesAdapter(GridItemClickListener listener) {
@@ -51,14 +51,10 @@ public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.FavM
      *
      * @param movies movie data to be displayed
      */
-    public void setMovies(List<MovieList> movies) {
+    public void setMovies(List<Movie> movies) {
         this.movies = movies;
         notifyDataSetChanged();
     }
-
-//    public interface GridItemListener {
-//        void onClick(MovieList movie);
-//    }
 
     public class FavMovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

@@ -21,12 +21,12 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorPrimary"
-            app:maxLines="3"
+            app:expandedTitleMarginBottom="@dimen/expanded_title_bottom_margin"
             app:expandedTitleMarginEnd="@dimen/expanded_title_horizontal_margin"
             app:expandedTitleMarginStart="@dimen/expanded_title_horizontal_margin"
-            app:expandedTitleMarginBottom="@dimen/expanded_title_bottom_margin"
             app:expandedTitleTextAppearance="@style/TextAppearance.ExpandedTitle"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:maxLines="3">
 
             <FrameLayout
                 android:id="@+id/backdrop_frame"
@@ -51,10 +51,10 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_gravity="bottom"
                     android:layout_marginBottom="@dimen/rating_bar_bottom_margin"
-                    android:layout_marginLeft="@dimen/expanded_title_horizontal_margin">
+                    android:layout_marginLeft="@dimen/expanded_title_horizontal_margin"
+                    android:orientation="horizontal">
 
                     <RatingBar
                         android:id="@+id/rating_bar"
@@ -64,7 +64,7 @@
                         android:layout_gravity="center"
                         android:progressTint="@color/colorRating"
                         android:secondaryProgressTint="@android:color/transparent"
-                        android:stepSize="0.05"/>
+                        android:stepSize="0.05" />
 
                     <TextView
                         android:id="@+id/tv_detail_user_rating"
@@ -90,25 +90,6 @@
         </net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <ProgressBar
-        android:id="@+id/pb_loading_indicator_detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/tv_error_message_detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:drawableTint="@color/colorAccent"
-        android:drawableTop="@drawable/ic_signal_wifi_off_black_24dp"
-        android:text="@string/error_message"
-        android:textColor="@color/colorAccent"
-        android:textSize="16sp"
-        android:visibility="invisible" />
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
@@ -117,196 +98,222 @@
         android:paddingBottom="@dimen/activity_padding_vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.constraint.ConstraintLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/iv_detail_poster"
-                android:layout_width="@dimen/poster_width"
-                android:layout_height="@dimen/poster_height"
-                android:layout_marginLeft="@dimen/content_horizontal_margin"
-                android:layout_marginStart="@dimen/content_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_padding_vertical"
-                android:adjustViewBounds="true"
-                android:background="@drawable/border"
-                android:contentDescription="@string/desc_poster"
-                android:scaleType="centerCrop"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/language_label"
-                style="@style/DetailInfoStyle"
-                android:text="@string/language"
-                app:layout_constraintStart_toStartOf="@+id/runtime_label"
-                app:layout_constraintTop_toBottomOf="@+id/rv_genre"
-                tools:layout_editor_absoluteY="498dp" />
-
-            <TextView
-                android:id="@+id/tv_detail_language"
+            <ProgressBar
+                android:id="@+id/pb_loading_indicator_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/content_horizontal_margin"
-                android:layout_marginStart="@dimen/content_horizontal_margin"
-                android:textAllCaps="true"
-                app:layout_constraintBaseline_toBaselineOf="@+id/language_label"
-                app:layout_constraintStart_toEndOf="@+id/barrier3"
-                tools:text="English" />
+                android:layout_gravity="center"
+                android:visibility="invisible" />
 
             <TextView
-                android:id="@+id/release_date_label"
-                style="@style/DetailInfoStyle"
-                android:layout_marginLeft="@dimen/content_horizontal_margin"
-                android:layout_marginStart="@dimen/content_horizontal_margin"
-                android:text="@string/release_date"
-                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
-                app:layout_constraintTop_toBottomOf="@+id/runtime_label"
-                tools:layout_editor_absoluteY="480dp" />
-
-            <TextView
-                android:id="@+id/tv_detail_release_date"
+                android:id="@+id/tv_error_message_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/content_horizontal_margin"
-                android:layout_marginStart="@dimen/content_horizontal_margin"
-                app:layout_constraintBaseline_toBaselineOf="@+id/release_date_label"
-                app:layout_constraintStart_toEndOf="@+id/barrier3"
-                tools:text="12 Jan 2014" />
+                android:layout_gravity="center"
+                android:drawableTint="@color/colorAccent"
+                android:drawableTop="@drawable/ic_signal_wifi_off_black_24dp"
+                android:text="@string/error_message"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                android:visibility="invisible" />
 
-            <TextView
-                android:id="@+id/runtime_label"
-                style="@style/DetailInfoStyle"
-                android:text="@string/runtime"
-                app:layout_constraintStart_toStartOf="@+id/release_date_label"
-                app:layout_constraintTop_toBottomOf="@+id/language_label"
-                tools:layout_editor_absoluteY="454dp" />
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/layout_movie_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/tv_detail_runtime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBaseline_toBaselineOf="@+id/runtime_label"
-                app:layout_constraintStart_toStartOf="@+id/tv_detail_release_date"
-                tools:text="144 minutes" />
+                <ImageView
+                    android:id="@+id/iv_detail_poster"
+                    android:layout_width="@dimen/poster_width"
+                    android:layout_height="@dimen/poster_height"
+                    android:layout_marginLeft="@dimen/content_horizontal_margin"
+                    android:layout_marginStart="@dimen/content_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_padding_vertical"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/border"
+                    android:contentDescription="@string/desc_poster"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/language_label"
+                    style="@style/DetailInfoStyle"
+                    android:text="@string/language"
+                    app:layout_constraintStart_toStartOf="@+id/runtime_label"
+                    app:layout_constraintTop_toBottomOf="@+id/rv_genre"
+                    tools:layout_editor_absoluteY="498dp" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_genre"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/content_horizontal_margin"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/content_horizontal_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
-                app:layout_constraintTop_toTopOf="@+id/iv_detail_poster" />
-
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/barrier_margin"
-                android:layout_marginStart="@dimen/barrier_margin"
-                app:barrierDirection="right"
-                app:constraint_referenced_ids="runtime_label,release_date_label"
-                app:layout_constraintStart_toStartOf="parent" />
-
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/cardview_overview"
-                style="@style/ContentCardStyle"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tv_detail_language"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_marginLeft="@dimen/content_horizontal_margin"
+                    android:layout_marginStart="@dimen/content_horizontal_margin"
+                    android:textAllCaps="true"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/language_label"
+                    app:layout_constraintStart_toEndOf="@+id/barrier3"
+                    tools:text="English" />
 
-                    <TextView
-                        android:id="@+id/overview_label"
-                        style="@style/ContentLabelStyle"
-                        android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:text="@string/synopsis" />
+                <TextView
+                    android:id="@+id/release_date_label"
+                    style="@style/DetailInfoStyle"
+                    android:layout_marginLeft="@dimen/content_horizontal_margin"
+                    android:layout_marginStart="@dimen/content_horizontal_margin"
+                    android:text="@string/release_date"
+                    app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
+                    app:layout_constraintTop_toBottomOf="@+id/runtime_label"
+                    tools:layout_editor_absoluteY="480dp" />
 
-                    <TextView
-                        android:id="@+id/tv_detail_overview"
+                <TextView
+                    android:id="@+id/tv_detail_release_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_horizontal_margin"
+                    android:layout_marginStart="@dimen/content_horizontal_margin"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/release_date_label"
+                    app:layout_constraintStart_toEndOf="@+id/barrier3"
+                    tools:text="12 Jan 2014" />
+
+                <TextView
+                    android:id="@+id/runtime_label"
+                    style="@style/DetailInfoStyle"
+                    android:text="@string/runtime"
+                    app:layout_constraintStart_toStartOf="@+id/release_date_label"
+                    app:layout_constraintTop_toBottomOf="@+id/language_label"
+                    tools:layout_editor_absoluteY="454dp" />
+
+                <TextView
+                    android:id="@+id/tv_detail_runtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/runtime_label"
+                    app:layout_constraintStart_toStartOf="@+id/tv_detail_release_date"
+                    tools:text="144 minutes" />
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_genre"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/content_horizontal_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/content_horizontal_margin"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/iv_detail_poster"
+                    app:layout_constraintTop_toTopOf="@+id/iv_detail_poster" />
+
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/barrier_margin"
+                    android:layout_marginStart="@dimen/barrier_margin"
+                    app:barrierDirection="right"
+                    app:constraint_referenced_ids="runtime_label,release_date_label"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cardview_overview"
+                    style="@style/ContentCardStyle"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_detail_poster">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/activity_padding_vertical"
-                        android:layout_marginEnd="@dimen/content_horizontal_margin"
-                        android:layout_marginLeft="@dimen/content_horizontal_margin"
-                        android:layout_marginRight="@dimen/content_horizontal_margin"
-                        android:layout_marginStart="@dimen/content_horizontal_margin"
-                        android:lineSpacingExtra="@dimen/overview_line_space_extra"
-                        android:lineSpacingMultiplier="1" />
+                        android:orientation="vertical">
 
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/overview_label"
+                            style="@style/ContentLabelStyle"
+                            android:layout_marginBottom="@dimen/activity_vertical_margin"
+                            android:text="@string/synopsis" />
 
-            </android.support.v7.widget.CardView>
+                        <TextView
+                            android:id="@+id/tv_detail_overview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/activity_padding_vertical"
+                            android:layout_marginEnd="@dimen/content_horizontal_margin"
+                            android:layout_marginLeft="@dimen/content_horizontal_margin"
+                            android:layout_marginRight="@dimen/content_horizontal_margin"
+                            android:layout_marginStart="@dimen/content_horizontal_margin"
+                            android:lineSpacingExtra="@dimen/overview_line_space_extra"
+                            android:lineSpacingMultiplier="1" />
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/cardview_trailer"
-                style="@style/ContentCardStyle"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_overview">
+                    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                </android.support.v7.widget.CardView>
 
-                    <TextView
-                        android:id="@+id/trailers_label"
-                        style="@style/ContentLabelStyle"
-                        android:layout_marginBottom="@dimen/label_vertical_margin"
-                        android:text="@string/trailers" />
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cardview_trailer"
+                    style="@style/ContentCardStyle"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardview_overview">
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_trailer"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
+                        <TextView
+                            android:id="@+id/trailers_label"
+                            style="@style/ContentLabelStyle"
+                            android:layout_marginBottom="@dimen/label_vertical_margin"
+                            android:text="@string/trailers" />
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/cardview_reviews"
-                style="@style/ContentCardStyle"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_trailer"
-                tools:layout_editor_absoluteY="584dp">
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_trailer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
 
-                    <TextView
-                        android:id="@+id/reviews_label"
-                        style="@style/ContentLabelStyle"
-                        android:text="@string/reviews" />
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cardview_reviews"
+                    style="@style/ContentCardStyle"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardview_trailer"
+                    tools:layout_editor_absoluteY="584dp">
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_review"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        android:scrollbars="none" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-        </android.support.constraint.ConstraintLayout>
+                        <TextView
+                            android:id="@+id/reviews_label"
+                            style="@style/ContentLabelStyle"
+                            android:text="@string/reviews" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_review"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:scrollbars="none" />
+
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+            </android.support.constraint.ConstraintLayout>
+        </FrameLayout>
+
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
