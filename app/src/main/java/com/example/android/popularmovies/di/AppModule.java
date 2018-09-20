@@ -31,7 +31,6 @@ class AppModule {
 
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String API_KEY_PARAM = "api_key";
-    private static final String API_KEY = BuildConfig.API_KEY;
 
     @Singleton
     @Provides
@@ -89,7 +88,7 @@ class AppModule {
                 Request original = chain.request();
                 HttpUrl originalHttpUrl = original.url();
                 HttpUrl newHttpUrl = originalHttpUrl.newBuilder()
-                        .setQueryParameter(API_KEY_PARAM, API_KEY)
+                        .setQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DB_API_KEY)
                         .build();
                 Request request = original.newBuilder().url(newHttpUrl).build();
                 return chain.proceed(request);

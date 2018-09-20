@@ -29,7 +29,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
 
     @Override
     public void onBindViewHolder(@NonNull final ReviewViewHolder holder, int position) {
-        holder.bind(position);
+        holder.bind(holder.getAdapterPosition());
         holder.contentTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

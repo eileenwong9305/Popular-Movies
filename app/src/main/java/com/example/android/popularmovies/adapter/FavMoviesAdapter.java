@@ -35,7 +35,7 @@ public class FavMoviesAdapter extends RecyclerView.Adapter<FavMoviesAdapter.FavM
 
     @Override
     public void onBindViewHolder(FavMovieViewHolder holder, int position) {
-        holder.bind(position);
+        holder.bind(holder.getAdapterPosition());
     }
 
     @Override

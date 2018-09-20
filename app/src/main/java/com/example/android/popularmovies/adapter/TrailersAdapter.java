@@ -43,7 +43,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
 
     @Override
     public void onBindViewHolder(@NonNull final TrailerViewHolder holder, final int position) {
-        holder.bind(position);
+        holder.bind(holder.getAdapterPosition());
         holder.shareIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -3,6 +3,7 @@ package com.example.android.popularmovies.ui.main;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -12,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
     public TextView emptyListMessageTextView;
     @BindView(R.id.rv_fav_movie)
     public RecyclerView favMovieRecyclerView;
-    @Inject
-    MovieRepository movieRepository;
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     private MoviesAdapter moviesAdapter;
@@ -137,12 +137,12 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
      * Setup recyclerview and layoutManager based on the orientation of device
      */
     private void setupRecyclerView() {
-        int spanCount;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            spanCount = 2;
-        } else {
-            spanCount = 4;
-        }
+        int spanCount = calculateNoOfColumns(getApplicationContext());
+//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            spanCount = 2;
+//        } else {
+//            spanCount = 4;
+//        }
         GridLayoutManager movieLayoutManager = new GridLayoutManager(this, spanCount);
         movieRecyclerView.setLayoutManager(movieLayoutManager);
         movieRecyclerView.setHasFixedSize(true);
@@ -193,6 +193,13 @@ public class MainActivity extends AppCompatActivity implements GridItemClickList
         loadingIndicator.setVisibility(View.VISIBLE);
         emptyListMessageTextView.setVisibility(View.GONE);
         errorLayout.setVisibility(View.GONE);
+    }
+
+    private int calculateNoOfColumns(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        int noOfColumns = (int) (dpWidth / 180);
+        return noOfColumns;
     }
 
     private void loadMovies(final String sortOrder) {
